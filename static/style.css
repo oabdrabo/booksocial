@@ -115,7 +115,7 @@ body:has(.bar.foot) .bar.tab{display:none}
 
 /* cover — 4:5 with everything overlaid */
 .cover{display:block;width:100%;aspect-ratio:4/5;background:var(--bg-overlay);overflow:hidden;position:relative;color:#fff}
-.cover img{width:100%;height:100%;object-fit:cover}
+.cover img{width:100%;height:100%;object-fit:cover;object-position:50% 0}
 .cover .gen{position:absolute;inset:0}
 .cover .gen-text{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:18% 14%;color:rgba(255,255,255,.95);text-shadow:0 1px 6px rgba(0,0,0,.45);z-index:1;pointer-events:none}
 .cover .gen-text .gt{font-family:Georgia,serif;font-size:22px;line-height:1.2;font-weight:700;letter-spacing:.01em}
