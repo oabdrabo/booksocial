@@ -1,0 +1,23 @@
+{% extends layout %}
+{% block content %}
+<div class="list">
+{% if not convs %}<div class="empty">No messages yet. Open a profile and tap “Message”.</div>
+{% else %}{% for c in convs %}
+<div class="row tap swipe-row" id="conv-{{ c['other']['username'] }}">
+  <a class="grow" href="{{ url_for('dm', username=c['other']['username']) }}" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
+    <span class="avatar">{% if c['other']['avatar'] %}<img src="{{ c['other']['avatar'] }}" alt="">{% else %}{{ c['other']['username'][0]|upper }}{% endif %}</span>
+    <span class="grow">
+      <b>{{ c['other']['display_name'] or c['other']['username'] }}</b>
+      {% if c['last_body'] %}<div class="m">{{ c['last_body'][:60] }}</div>{% endif %}
+    </span>
+    <span class="meta">
+      <span class="m">{{ c['updated_at']|ago }}</span>
+      {% if c['unread'] %}<span class="badge">{{ c['unread'] }}</span>{% endif %}
+    </span>
+  </a>
+  <button class="row-del" hx-delete="{{ url_for('dm_delete', username=c['other']['username']) }}" hx-target="#conv-{{ c['other']['username'] }}" hx-swap="outerHTML" hx-confirm="Delete this conversation?" aria-label="Delete conversation">{% include "icons/trash.svg" %}</button>
+</div>
+{% endfor %}{% endif %}
+</div>
+<a class="fab" href="{{ url_for('dms_new') }}" aria-label="New message">{% include "icons/pencil.svg" %}</a>
+{% endblock %}

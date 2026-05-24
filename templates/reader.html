@@ -1,0 +1,106 @@
+{% extends layout %}
+{% block content %}
+{% set bid = book['id'] %}
+<div class="body" data-bid="{{ bid }}">
+{% for p in paragraphs %}
+{% if p['chapter_title'] %}<div class="label">{{ p['chapter_title'] }}</div>{% endif %}
+<div class="para{{ ' hl' if p['idx'] in highlights }}" id="p-{{ p['idx'] }}" data-idx="{{ p['idx'] }}">{{ p['html']|safe }}</div>
+{% if p['idx'] in highlights or p['idx'] in notes %}<input class="note" data-idx="{{ p['idx'] }}" placeholder="Add a note…" value="{{ notes[p['idx']] if p['idx'] in notes else '' }}">{% endif %}
+{% endfor %}
+</div>
+<div class="bar foot">
+  <a class="btn" href="{{ url_for('book_toc', bid=bid) }}" aria-label="Chapters">{% include "icons/list.svg" %}</a>
+  <button class="btn" onclick="cycleFont()" aria-label="Font size"><b style="font-size:14px">Aa</b></button>
+  <a class="btn" href="{{ url_for('book_notes', bid=bid) }}" aria-label="Notes">{% include "icons/note.svg" %}</a>
+  <span class="grow"></span>
+  <a class="btn" href="{{ url_for('book_comments', bid=bid) }}" aria-label="Comments">{% include "icons/comment.svg" %}</a>
+  {% include "partials/like_btn.html" %}
+  <button class="btn" onclick="share({{ bid }})" aria-label="Share">{% include "icons/share.svg" %}</button>
+  {% include "partials/save_btn.html" %}
+</div>
+{% if g.user %}
+<script>
+(function(){
+  const bid={{ bid }};let last=-1,t=null;
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return;const i=+e.target.dataset.idx;if(i===last)return;
+    clearTimeout(t);t=setTimeout(()=>{const f=new FormData();f.append('idx',i);fetch(`/books/${bid}/progress`,{method:'POST',body:f}).then(()=>last=i);},1000);
+  }),{rootMargin:'-30% 0px -60% 0px'});
+  function wire(i){
+    let t;const save=()=>{const v=i.value.trim();if(v){const f=new FormData();f.append('body',v);fetch(`/books/${bid}/note/${i.dataset.idx}`,{method:'POST',body:f})}else{fetch(`/books/${bid}/note/${i.dataset.idx}`,{method:'DELETE'})}};
+    i.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(save,500)});
+    i.addEventListener('blur',()=>{clearTimeout(t);save()});
+    i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();i.blur()}});
+    i.addEventListener('click',e=>e.stopPropagation());
+  }
+  function toggleHl(p){
+    const on=!p.classList.contains('hl');
+    p.classList.toggle('hl',on);
+    fetch(`/books/${bid}/highlight/${p.dataset.idx}`,{method:'POST'});
+    let nextEl=p.nextElementSibling;
+    if(on){
+      if(!nextEl || !nextEl.classList.contains('note')){
+        const i=document.createElement('input');i.className='note';i.dataset.idx=p.dataset.idx;i.placeholder='Add a note…';p.after(i);wire(i);setTimeout(()=>i.focus(),50);
+      }
+    }else if(nextEl && nextEl.classList.contains('note')){
+      nextEl.remove();fetch(`/books/${bid}/note/${p.dataset.idx}`,{method:'DELETE'});
+    }
+  }
+  document.querySelectorAll('.para').forEach(p=>{
+    obs.observe(p);
+    let sx=0,sy=0,st=0,moved=false;
+    p.addEventListener('pointerdown',e=>{
+      if(e.target.closest('a,input,button,.note'))return;
+      sx=e.clientX;sy=e.clientY;st=performance.now();moved=false;
+    },{passive:true});
+    p.addEventListener('pointermove',e=>{
+      if(st&&(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8))moved=true;
+    },{passive:true});
+    p.addEventListener('pointerup',e=>{
+      if(!st)return;
+      const dt=performance.now()-st;st=0;
+      if(moved||dt>500)return;
+      if(e.target.closest('a,input,button,.note'))return;
+      const sel=getSelection();
+      if(sel&&sel.toString()&&sel.rangeCount&&p.contains(sel.anchorNode))return;
+      if(sel&&sel.toString())sel.removeAllRanges();
+      e.preventDefault();
+      toggleHl(p);
+    });
+  });
+  document.querySelectorAll('.note').forEach(wire);
+  const startP=+(new URLSearchParams(location.search).get('p') || {{ progress['paragraph_idx'] if progress else 0 }});
+  if(startP>0){
+    const el=document.getElementById('p-'+startP);
+    if(el){
+      // Find the scrollable ancestor (sheet-body when opened as sheet, document otherwise).
+      function scroller(){
+        let n=el.parentElement;
+        while(n){const o=getComputedStyle(n).overflowY;if(o==='auto'||o==='scroll')return n;n=n.parentElement;}
+        return document.scrollingElement||document.documentElement;
+      }
+      const sc=scroller();
+      let lastTop=-1,tries=0;
+      function go(){
+        const off=el.offsetTop, vh=sc.clientHeight;
+        sc.scrollTop = Math.max(0, off - vh/2 + el.offsetHeight/2);
+        requestAnimationFrame(()=>{
+          if(Math.abs(el.offsetTop-lastTop)<2||++tries>=10){
+            el.classList.add('resume');
+            setTimeout(()=>el.classList.remove('resume'),2400);
+            return;
+          }
+          lastTop=el.offsetTop;
+          setTimeout(go,50);
+        });
+      }
+      setTimeout(go,40);
+    }
+  }
+})();
+const FS=['16px','18px','20px','22px'];
+function cycleFont(){let i=(+localStorage.fs||1);i=(i+1)%FS.length;localStorage.fs=i;document.documentElement.style.setProperty('--reader-fs',FS[i])}
+(function(){document.documentElement.style.setProperty('--reader-fs',FS[+localStorage.fs||1])})();
+</script>
+{% endif %}
+{% endblock %}

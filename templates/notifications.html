@@ -1,0 +1,18 @@
+{% extends layout %}
+{% block content %}
+<div class="list">
+{% if items %}<form method="post" action="{{ url_for('notifications_read_all') }}" style="display:flex;justify-content:flex-end;padding:6px 10px;border-bottom:1px solid var(--rule);margin:0"><button class="btn" type="submit" aria-label="Mark all as read">{% include "icons/check-double.svg" %}</button></form>{% endif %}
+{% if not items %}<div class="empty">No notifications.</div>
+{% else %}{% for n in items %}
+<a class="row tap" href="{{ url_for('profile', username=n['actor_name']) if n['kind']=='follow' else url_for('book_read', bid=n['book_id']) if n['book_id'] else url_for('home') }}">
+  <span class="avatar">{% if n['actor_avatar'] %}<img src="{{ n['actor_avatar'] }}" alt="">{% else %}{{ n['actor_name'][0]|upper }}{% endif %}</span>
+  <span class="grow">
+    <b>{{ n['actor_name'] }}</b>
+    {% if n['kind']=='like' %}liked your post{% elif n['kind']=='comment' %}commented on your post{% elif n['kind']=='reply' %}replied to you{% elif n['kind']=='mention' %}mentioned you{% elif n['kind']=='follow' %}started following you{% endif %}
+    {% if n['book_caption'] %}<span class="m"> — {{ n['book_caption']|title_part }}</span>{% endif %}
+  </span>
+  <span class="m">{{ n['created_at']|ago }}</span>
+</a>
+{% endfor %}{% endif %}
+</div>
+{% endblock %}

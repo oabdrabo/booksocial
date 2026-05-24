@@ -1,0 +1,1 @@
+<button class="btn {{ 'liked' if liked }}" hx-post="{{ url_for('like', bid=bid) }}" hx-target="this" hx-swap="outerHTML" aria-label="Like{% if like_count %}, {{ like_count }}{% endif %}">{% if liked %}{% include "icons/heart-filled.svg" %}{% else %}{% include "icons/heart.svg" %}{% endif %}{% if like_count %}<span class="count">{{ like_count }}</span>{% endif %}</button>

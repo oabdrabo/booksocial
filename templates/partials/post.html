@@ -1,0 +1,20 @@
+{% set pal = cover_palette(b) %}
+{% set read_bid = b['repost_of'] or b['id'] %}
+<article class="card" id="card-{{ b['id'] }}">
+  <a class="cover" href="{{ url_for('book_read', bid=read_bid) }}">
+    {% if b['cover'] %}<img src="{{ b['cover'] }}" alt="">
+    {% else %}<div class="gen" style="background:linear-gradient(155deg,{{ pal['from'] }},{{ pal['to'] }})"></div>
+    <span class="gen-text" aria-hidden="true"><span class="gt">{{ b['caption']|title_part }}</span>{% if b['caption']|author_part %}<span class="ga">{{ b['caption']|author_part }}</span>{% endif %}</span>{% endif %}
+    <span class="head">
+      <span class="avatar" aria-hidden="true">{% if b['owner_avatar'] %}<img src="{{ b['owner_avatar'] }}" alt="">{% else %}{{ b['owner_username'][0]|upper }}{% endif %}</span>
+      <b>{{ b['owner_username'] }}</b>
+      {% if b['repost_of'] %}<span class="time">· reposted</span>{% elif b['para_count'] %}<span class="time">· {{ read_time(b['para_count']) }}</span>{% endif %}
+    </span>
+    {% if b['quote'] %}<span class="quote">{{ b['quote'] }}</span>{% endif %}
+    {% if b['caption'] %}<span class="foot">{{ b['caption'] }}</span>{% endif %}
+    {% if b['progress_idx'] and b['para_count'] %}<span class="prog" style="width:{{ (b['progress_idx']*100//b['para_count'])|min(100) }}%"></span>{% endif %}
+  </a>
+  {% with liked=b['liked'], saved=b['saved'], like_count=b['like_count'], comment_count=b['comment_count'], book_id=read_bid %}
+    {% include "partials/actions.html" %}
+  {% endwith %}
+</article>

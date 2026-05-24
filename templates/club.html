@@ -1,0 +1,20 @@
+{% extends layout %}
+{% block content %}
+{% set me_id = g.user['id'] %}
+<div class="dm-head">
+  <span class="avatar">{% if info['cover'] %}<img src="{{ info['cover'] }}" alt="">{% endif %}</span>
+  <span class="grow"><b>{{ info['name'] }}</b><div class="m">{{ members|length }} member{{ '' if members|length==1 else 's' }}</div></span>
+  {% if not is_member %}<a class="btn primary" href="?join=1" aria-label="Join club">{% include "icons/user-plus.svg" %}</a>
+  {% elif info['owner_id'] == me_id %}<form method="post" action="{{ url_for('club_delete', cid=cid) }}" style="margin:0" onsubmit="return confirm('Delete this club?')"><button class="btn danger" aria-label="Delete club">{% include "icons/trash.svg" %}</button></form>
+  {% else %}<form method="post" action="{{ url_for('club_leave', cid=cid) }}" style="margin:0"><button class="btn" aria-label="Leave club">{% include "icons/user-minus.svg" %}</button></form>{% endif %}
+</div>
+<div class="msgs" id="cmsgs">
+{% for m in msgs %}{% include "partials/club_msg.html" %}{% endfor %}
+</div>
+{% if is_member %}
+<form class="bar foot" hx-post="{{ url_for('club', cid=cid) }}" hx-target="#cmsgs" hx-swap="beforeend" hx-on::after-request="this.reset();const m=document.getElementById('cmsgs');m.scrollTop=m.scrollHeight">
+  <input class="input" name="body" placeholder="Message the club…" required maxlength="2000">
+  <button class="btn primary" type="submit" aria-label="Send">{% include "icons/send.svg" %}</button>
+</form>
+{% endif %}
+{% endblock %}

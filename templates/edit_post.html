@@ -1,0 +1,11 @@
+{% extends layout %}
+{% block content %}
+<form id="ep" method="post" action="{{ url_for('book_edit', bid=book['id']) }}">
+  <textarea class="md" name="body_md" autofocus>{{ body }}</textarea>
+</form>
+<div class="bar foot">
+  <button class="btn danger" hx-post="{{ url_for('book_delete', bid=book['id']) }}" hx-confirm="Delete this post?" hx-on::after-request="closeSheet();location.assign('/')" aria-label="Delete post">{% include "icons/trash.svg" %}</button>
+  <span class="grow"></span>
+  <button class="btn primary" type="submit" form="ep" aria-label="Save">{% include "icons/check.svg" %}</button>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+books.db
+books.db-*
+uploads/covers/*
+uploads/images/*
+!uploads/covers/.gitkeep
+!uploads/images/.gitkeep
+__pycache__/
+*.pyc
+.venv/
+venv/

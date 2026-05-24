@@ -1,0 +1,31 @@
+{% if not q %}
+{% if discover['users'] %}<div class="strip-h">People</div>
+<div class="strip-row">{% for u in discover['users'] %}<a class="person-tile" href="{{ url_for('profile', username=u['username']) }}"><span class="avatar lg">{% if u['avatar'] %}<img src="{{ u['avatar'] }}" alt="">{% else %}{{ u['username'][0]|upper }}{% endif %}</span><span class="pt-name">{{ u['display_name'] or u['username'] }}</span></a>{% endfor %}</div>{% endif %}
+{% if discover['tags'] %}<div class="strip-h" style="margin-top:18px">Tags</div>
+<div class="tagcloud">{% for t in discover['tags'] %}<a class="chip" href="{{ url_for('tag', tag=t['tag']) }}">#{{ t['tag'] }}</a>{% endfor %}</div>{% endif %}
+{% if discover['books'] %}<div class="strip-h" style="margin-top:18px">Popular</div>
+<div class="grid">{% for b in discover['books'] %}{% set pal = cover_palette(b) %}
+<a href="{{ url_for('book_read', bid=b['id']) }}" aria-label="Open">
+  {% if b['cover'] %}<img src="{{ b['cover'] }}" alt="">
+  {% else %}<div class="gen" style="background:linear-gradient(155deg,{{ pal['from'] }},{{ pal['to'] }})"></div>
+  <span class="gen-text" aria-hidden="true"><span class="gt">{{ b['caption']|title_part }}</span>{% if b['caption']|author_part %}<span class="ga">{{ b['caption']|author_part }}</span>{% endif %}</span>{% endif %}
+</a>
+{% endfor %}</div>{% endif %}
+{% elif not (results['books'] or results['lines'] or results['users']) %}<p class="empty">No matches.</p>
+{% else %}
+{% for u in results['users'] %}
+<a class="row" href="{{ url_for('profile', username=u['username']) }}">
+  <span class="avatar">{{ u['username'][0]|upper }}</span><b>{{ u['username'] }}</b>{% if u['display_name'] %}<span class="m"> · {{ u['display_name'] }}</span>{% endif %}
+</a>
+{% endfor %}
+{% for b in results['books'] %}
+<a class="row" href="{{ url_for('book_read', bid=b['id']) }}">
+  <span class="m">@{{ b['owner_username'] }}</span><span class="grow">{{ b['caption'] or 'Untitled' }}</span>
+</a>
+{% endfor %}
+{% for l in results['lines'] %}
+<a class="row" href="{{ url_for('book_read', bid=l['book_id']) }}#p-{{ l['idx'] }}">
+  <span class="m">@{{ l['username'] }}</span><span class="grow">{{ l['s']|safe }}</span>
+</a>
+{% endfor %}
+{% endif %}

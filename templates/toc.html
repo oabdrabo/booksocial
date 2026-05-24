@@ -1,0 +1,21 @@
+{% extends layout %}
+{% block content %}
+<div class="list">
+{% if not chapters %}<div class="empty">No chapters.</div>
+{% else %}{% for c in chapters %}
+{% set parts = (c['title'] or '').split('.', 1) %}
+{% set num = parts[0] if parts|length == 2 and 'CHAPTER' in parts[0].upper() else '' %}
+{% set title = parts[1].strip() if num else (c['title'] or 'Untitled') %}
+{% set is_meta = ('PROJECT GUTENBERG' in (c['title'] or '').upper()) or ('LICENSE' in (c['title'] or '').upper()) %}
+<a class="row tap toc-row{{ ' meta' if is_meta }}" href="{{ url_for('book_read', bid=bid) }}?p={{ c['first_idx'] }}" data-idx="{{ c['first_idx'] }}">
+  {% if num %}<span class="toc-num">{{ num.replace('CHAPTER','').replace('Chapter','').strip() or '·' }}</span>{% endif %}
+  <span class="grow">{{ title }}</span>
+</a>
+{% endfor %}{% endif %}
+</div>
+<script>
+document.querySelectorAll('.list a[data-idx]').forEach(a=>{
+  a.addEventListener('click',e=>{e.preventDefault();const i=a.dataset.idx;popSheet();setTimeout(()=>{const el=document.getElementById('p-'+i);if(el)el.scrollIntoView({block:'start'})},420)});
+});
+</script>
+{% endblock %}

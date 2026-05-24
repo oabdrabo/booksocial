@@ -1,0 +1,9 @@
+{% set bid = book_id if book_id is defined else b['id'] %}
+<div class="actions">
+  {% include "partials/like_btn.html" %}
+  <a class="btn" href="{{ url_for('book_comments', bid=bid) }}" aria-label="Comments{% if comment_count %}, {{ comment_count }}{% endif %}">{% include "icons/comment.svg" %}{% if comment_count %}<span class="count">{{ comment_count }}</span>{% endif %}</a>
+  <form method="post" action="{{ url_for('book_repost', bid=bid) }}" style="margin:0;display:inline-flex"><button class="btn" type="submit" aria-label="Repost">{% include "icons/repost.svg" %}</button></form>
+  <button class="btn" onclick="share({{ bid }})" aria-label="Share">{% include "icons/share.svg" %}</button>
+  <span class="grow"></span>
+  {% include "partials/save_btn.html" %}
+</div>

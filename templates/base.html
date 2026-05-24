@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>booksocial</title>
+<meta name="description" content="A quiet place to share books and read together.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pacifico&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia' font-size='40' fill='%23e85d3c' font-weight='700'%3Eb%3C/text%3E%3C/svg%3E">
+<script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+</head>
+<body>
+<div class="app">
+{% block topbar %}<header class="bar top"><span class="hl"><a class="brand" href="{{ url_for('home') }}" data-direct>booksocial</a></span><span class="title"></span><span class="hr">{% if g.user %}<a class="btn" href="{{ url_for('clubs') }}" aria-label="Clubs">{% include "icons/users.svg" %}</a><a class="btn" href="{{ url_for('dms') }}" aria-label="Messages">{% include "icons/comment.svg" %}{% if unread_dm %}<span class="dot"></span>{% endif %}</a><a class="btn" href="{{ url_for('notifications') }}" aria-label="Notifications">{% include "icons/bell.svg" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>{% endif %}</span></header>{% endblock %}
+<main id="main">{% block content %}{% endblock %}</main>
+<nav class="bar tab">
+  <a class="btn" href="{{ url_for('home') }}" data-direct aria-label="Home">{% include "icons/home.svg" %}</a>
+  <a class="btn" href="{{ url_for('search') }}" aria-label="Search">{% include "icons/search.svg" %}</a>
+  <a class="btn" href="{{ url_for('new_book') }}" aria-label="New post">{% include "icons/plus.svg" %}</a>
+  <a class="btn" href="{{ url_for('saved') }}" aria-label="Saved">{% include "icons/bookmark.svg" %}</a>
+  {% if g.user %}<a class="avatar" href="{{ url_for('profile', username=g.user['username']) }}" aria-label="Your profile" data-l="{{ (g.user['display_name'] or g.user['username'])[0]|upper }}">{% if g.user['avatar'] %}<img src="{{ g.user['avatar'] }}" alt="">{% endif %}</a>
+  {% else %}<a class="btn" href="{{ url_for('home') }}?as=demo" data-direct>in</a>{% endif %}
+</nav>
+</div>
+<div id="sheets" class="sheets" aria-hidden="true"><div class="backdrop"></div><div class="sheet" role="dialog" aria-modal="true"><div class="handle" aria-label="Drag to dismiss"></div><div class="sheet-body"></div></div></div>
+<div id="toast" aria-live="polite"></div>
+<script>
+const S=document.getElementById('sheets'),Sh=S.querySelector('.sheet'),Sb=S.querySelector('.sheet-body'),Hd=S.querySelector('.handle'),Bd=S.querySelector('.backdrop'),stk=[];
+let cleanT=null;
+function openSheet(u){clearTimeout(cleanT);stk.push(u);load(u);S.classList.add('open');S.setAttribute('aria-hidden','false')}
+function load(u){fetch(u,{headers:{'HX-Request':'true'}}).then(r=>r.text()).then(h=>{Sb.innerHTML=h;Sb.querySelectorAll('script').forEach(o=>{const s=document.createElement('script');[...o.attributes].forEach(a=>s.setAttribute(a.name,a.value));s.text=o.text;o.replaceWith(s)});window.htmx&&htmx.process(Sb);Sb.scrollTop=0})}
+function popSheet(){stk.pop();stk.length?load(stk[stk.length-1]):closeSheet()}
+function closeSheet(){stk.length=0;S.classList.remove('open');S.setAttribute('aria-hidden','true');clearTimeout(cleanT);cleanT=setTimeout(()=>{if(!S.classList.contains('open')){Sh.style.transform='';Sb.innerHTML=''}},380)}
+function share(bid){const u=location.origin+'/books/'+bid;if(navigator.share)navigator.share({url:u});else navigator.clipboard.writeText(u).then(()=>{toast.innerHTML='<span class=toast>Copied</span>';setTimeout(()=>toast.innerHTML='',1500)})}
+Bd.addEventListener('click',closeSheet);
+let dr=null;
+function pd(e){const y=(e.touches?e.touches[0]:e).clientY;if(e.target!==Hd&&Sb.scrollTop>0)return;dr={y0:y,t0:performance.now(),lastY:y,lastT:performance.now()};Sh.classList.add('dragging')}
+function pm(e){if(!dr)return;const y=(e.touches?e.touches[0]:e).clientY,dy=y-dr.y0;dr.lastY=y;dr.lastT=performance.now();Sh.style.transform=dy<=0?`translateX(-50%) translateY(${dy*.3}px)`:`translateX(-50%) translateY(${dy}px)`;if(dy>0&&e.cancelable)e.preventDefault()}
+function pu(){if(!dr)return;Sh.classList.remove('dragging');const dy=dr.lastY-dr.y0,dt=Math.max(16,dr.lastT-dr.t0),vy=dy/dt*1000;dr=null;Sh.style.transition='';dy>120||vy>500?closeSheet():Sh.style.transform=''}
+Hd.addEventListener('touchstart',pd,{passive:true});Hd.addEventListener('touchmove',pm,{passive:false});Hd.addEventListener('touchend',pu);Hd.addEventListener('mousedown',pd);
+Sb.addEventListener('touchstart',pd,{passive:true});Sb.addEventListener('touchmove',pm,{passive:false});Sb.addEventListener('touchend',pu);
+addEventListener('mousemove',pm);addEventListener('mouseup',pu);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&stk.length)closeSheet()});
+
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a');if(!a||!a.href||a.target||a.hasAttribute('data-direct')||a.getAttribute('onclick'))return;
+  const u=new URL(a.href,location.href);
+  if(u.origin!==location.origin||u.pathname.startsWith('/uploads/'))return;
+  e.preventDefault();openSheet(u.pathname+u.search);
+});
+
+let tt;document.body.addEventListener('htmx:afterSwap',e=>{if(e.detail.target?.id==='toast'){clearTimeout(tt);tt=setTimeout(()=>e.detail.target.innerHTML='',1500)}});
+</script>
+</body>
+</html>

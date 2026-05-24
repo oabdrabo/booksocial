@@ -1,0 +1,1 @@
+<button class="btn {{ '' if is_following else 'primary' }}" hx-post="{{ url_for('follow', uid=target['id']) }}" hx-target="this" hx-swap="outerHTML" aria-label="{{ 'Unfollow' if is_following else 'Follow' }}">{% if is_following %}{% include "icons/user-check.svg" %}{% else %}{% include "icons/user-plus.svg" %}{% endif %}</button>

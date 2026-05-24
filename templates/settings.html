@@ -1,0 +1,30 @@
+{% extends layout %}
+{% block content %}
+<form method="post" action="{{ url_for('settings') }}" enctype="multipart/form-data" id="sf">
+  <label class="row tap" style="cursor:pointer">
+    <input type="file" name="avatar" accept="image/*" hidden onchange="this.parentElement.querySelector('.upico').textContent=this.files[0]?.name||''">
+    <span class="avatar" aria-hidden="true">{% if g.user['avatar'] %}<img src="{{ g.user['avatar'] }}" alt="">{% else %}{{ (g.user['display_name'] or g.user['username'])[0]|upper }}{% endif %}</span>
+    <span class="grow">Avatar <span class="m upico"></span></span>
+    <span class="btn" aria-hidden="true">{% include "icons/upload.svg" %}</span>
+  </label>
+  <label class="row col">
+    <span class="m">Display name</span>
+    <input class="input" name="display_name" value="{{ g.user['display_name'] or '' }}" maxlength="60">
+  </label>
+  <label class="row col">
+    <span class="m">Bio</span>
+    <textarea class="input" name="bio" rows="3" maxlength="200">{{ g.user['bio'] or '' }}</textarea>
+  </label>
+  <label class="row tap">
+    <input type="checkbox" name="private" {% if g.user['private'] %}checked{% endif %}>
+    <span class="grow">Private account</span>
+    <span class="m">Only followers see your posts</span>
+  </label>
+</form>
+<form method="post" action="{{ url_for('logout') }}" id="lf" style="margin:0"></form>
+<button class="row tap" type="submit" form="lf" style="width:100%;border:0;background:none;font:inherit;color:var(--red);text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px" aria-label="Log out">{% include "icons/logout.svg" %}<span class="grow">Log out</span></button>
+<div class="bar foot">
+  <span class="grow"></span>
+  <button class="btn primary" type="submit" form="sf" aria-label="Save">{% include "icons/check.svg" %}</button>
+</div>
+{% endblock %}
