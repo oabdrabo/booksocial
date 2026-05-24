@@ -10,8 +10,9 @@ from ebooklib import epub, ITEM_DOCUMENT, ITEM_IMAGE, ITEM_COVER
 from flask import Flask, abort, g, redirect, render_template, request, send_from_directory, url_for
 
 BASE = Path(__file__).parent.resolve()
-DB = BASE / "books.db"
-UP = {"covers": BASE / "uploads" / "covers", "images": BASE / "uploads" / "images"}
+DB = Path(os.environ.get("DB_PATH") or (BASE / "books.db"))
+UPROOT = Path(os.environ.get("UPLOADS_DIR") or (BASE / "uploads"))
+UP = {"covers": UPROOT / "covers", "images": UPROOT / "images"}
 DEV = os.environ.get("DEV_MODE", "1") == "1"
 TAGS = "p br strong em b i u blockquote pre code h1 h2 h3 h4 h5 h6 ul ol li a img hr span".split()
 ATTRS = {"a": ["href", "title", "rel"], "img": ["src", "alt", "title", "loading"]}
