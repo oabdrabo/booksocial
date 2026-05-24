@@ -5,7 +5,7 @@
 {% else %}{% for c in comments %}{% include "partials/comment.html" %}{% endfor %}{% endif %}
 </div>
 {% if g.user %}
-<form class="bar foot" id="cf" hx-post="{{ url_for('add_comment', bid=bid) }}" hx-target=".clist" hx-swap="beforeend" hx-on::after-request="this.reset();document.getElementById('parent').value=''">
+<form class="bar foot" id="cf" hx-post="{{ url_for('add_comment', bid=bid) }}" hx-target=".clist" hx-swap="beforeend" hx-on::after-request="this.reset();document.getElementById('parent').value='';document.querySelector('.clist .empty')?.remove()">
   <input type="hidden" name="parent_id" id="parent">
   <input class="input" name="body" id="cbody" placeholder="Add a comment…" required maxlength="500" autofocus>
   <button class="btn primary" type="submit" aria-label="Post">{% include "icons/send.svg" %}</button>
