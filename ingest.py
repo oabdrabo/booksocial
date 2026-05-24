@@ -21,7 +21,7 @@ with A.app.test_request_context():
     bid = con.execute("INSERT INTO books(owner_id,caption,status,visibility) VALUES(?,?,?,?)",
                       (uid, CAPTION, "published", "public")).lastrowid
     with open(EPUB_PATH, "rb") as f:
-        chapters, _ = A.parse_epub(f, bid)
+        chapters, _, _ = A.parse_epub(f, bid)
 
     book = epub.read_epub(str(EPUB_PATH))
     cover_url = None
