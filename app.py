@@ -179,6 +179,13 @@ def parse_epub(fs, bid):
     from urllib.parse import unquote
     with tempfile.NamedTemporaryFile(suffix=".epub") as t:
         t.write(fs.read()); t.flush(); book = epub.read_epub(t.name)
+    title = book.get_metadata("DC", "title")
+    author = book.get_metadata("DC", "creator")
+    epub_caption = None
+    if title and title[0] and title[0][0]:
+        t = title[0][0].strip()
+        a = author[0][0].strip() if author and author[0] and author[0][0] else ""
+        epub_caption = f"{t} — {a}" if a else t
     images = {}
     for it in book.get_items_of_type(ITEM_IMAGE):
         if (url := save_pic(it.get_content(), "images", 1600, f"b{bid}")):
@@ -212,7 +219,7 @@ def parse_epub(fs, bid):
         if h: h.decompose()
         paras = html_paragraphs(str(soup))
         if paras or title: chapters.append((title, paras))
-    return chapters or [(None, [])]
+    return chapters or [(None, [])], epub_caption
 
 def save_pic(src, kind, max_w, prefix):
     try:
@@ -364,9 +371,10 @@ def new_book():
     if upload and upload.filename:
         fn = upload.filename.lower()
         if fn.endswith(".epub"):
-            chapters = parse_epub(upload, bid)
-            if chapters and chapters[0][0]:
-                db().execute("UPDATE books SET caption=? WHERE id=?", (chapters[0][0][:200], bid))
+            chapters, epub_caption = parse_epub(upload, bid)
+            cap = (epub_caption or (chapters[0][0] if chapters and chapters[0][0] else None))
+            if cap:
+                db().execute("UPDATE books SET caption=? WHERE id=?", (cap[:200], bid))
             try: book = epub.read_epub(upload.stream.name) if hasattr(upload.stream, "name") else None
             except Exception: book = None
             if book:
