@@ -1,0 +1,18 @@
+{% extends layout %}
+{% block content %}
+{% set me_id = g.user['id'] %}
+<div class="dm-head">
+  <a class="avatar" href="{{ url_for('profile', username=other['username']) }}">{% if other['avatar'] %}<img src="{{ other['avatar'] }}" alt="">{% else %}{{ other['username'][0]|upper }}{% endif %}</a>
+  <b>{{ other['display_name'] or other['username'] }}</b>
+</div>
+<div class="msgs" id="msgs">
+{% for m in msgs %}{% include "partials/message.html" %}{% endfor %}
+</div>
+<form class="bar foot" hx-post="{{ url_for('dm', username=other['username']) }}" hx-target="#msgs" hx-swap="beforeend" hx-on::after-request="this.reset();const m=document.getElementById('msgs');m.scrollTop=m.scrollHeight">
+  <input class="input" name="body" placeholder="Message…" required maxlength="2000" autofocus>
+  <button class="btn primary" type="submit" aria-label="Send">{% include "icons/send.svg" %}</button>
+</form>
+<script>
+const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight;
+</script>
+{% endblock %}

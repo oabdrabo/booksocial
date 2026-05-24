@@ -1,0 +1,17 @@
+{% extends layout %}
+{% block content %}
+<div class="comments clist">
+{% if not comments %}<div class="empty">Be the first to comment.</div>
+{% else %}{% for c in comments %}{% include "partials/comment.html" %}{% endfor %}{% endif %}
+</div>
+{% if g.user %}
+<form class="bar foot" id="cf" hx-post="{{ url_for('add_comment', bid=bid) }}" hx-target=".clist" hx-swap="beforeend" hx-on::after-request="this.reset();document.getElementById('parent').value=''">
+  <input type="hidden" name="parent_id" id="parent">
+  <input class="input" name="body" id="cbody" placeholder="Add a comment…" required maxlength="500" autofocus>
+  <button class="btn primary" type="submit" aria-label="Post">{% include "icons/send.svg" %}</button>
+</form>
+<script>
+function reply(cid, name){document.getElementById('parent').value=cid;const i=document.getElementById('cbody');i.value='@'+name+' '+i.value.replace(/^@\S+\s*/,'');i.focus()}
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends layout %}
+{% block content %}
+{% set own = g.user and g.user['id'] == target['id'] %}
+<section class="profile">
+  <div class="avatar lg">{% if target['avatar'] %}<img src="{{ target['avatar'] }}" alt="">{% else %}{{ (target['display_name'] or target['username'])[0]|upper }}{% endif %}</div>
+  <div class="name">{{ target['display_name'] or target['username'] }}{% if target['private'] %} <span class="lock" title="Private">{% include "icons/lock.svg" %}</span>{% endif %}</div>
+  {% if target['bio'] %}<div class="bio">{{ target['bio']|mentions|safe }}</div>{% endif %}
+  <div class="stats">
+    <div><b>{{ stats['books'] }}</b><span>posts</span></div>
+    <a class="stat" href="{{ url_for('followers', username=target['username']) }}"><b>{{ stats['followers'] }}</b><span>followers</span></a>
+    <a class="stat" href="{{ url_for('following', username=target['username']) }}"><b>{{ stats['following'] }}</b><span>following</span></a>
+  </div>
+  {% if stats['streak'] %}<div class="stats sub"><div><b>{{ stats['streak'] }}</b><span>day streak</span></div><div><b>{{ stats['paras_read'] }}</b><span>paras read</span></div></div>{% endif %}
+  {% if own %}<div class="prof-actions"><a class="btn" href="{{ url_for('settings') }}" aria-label="Edit profile">{% include "icons/settings.svg" %}</a></div>
+  {% elif g.user %}<div class="prof-actions">{% include "partials/follow_btn.html" %}<a class="btn" href="{{ url_for('dm', username=target['username']) }}" aria-label="Message">{% include "icons/send.svg" %}</a><form method="post" action="{{ url_for('block', uid=target['id']) }}" style="margin:0"><button class="btn {{ 'danger' if not is_blocked }}" type="submit" aria-label="{{ 'Unblock' if is_blocked else 'Block' }}">{% include "icons/ban.svg" %}</button></form></div>{% endif %}
+</section>
+{% if not books %}<p class="empty">No posts.</p>
+{% else %}
+<div class="grid">
+  {% for b in books %}{% set pal = cover_palette(b) %}
+  <div class="grid-cell">
+    <a href="{{ url_for('book_read', bid=b['id']) }}" aria-label="Open post">
+      {% if b['cover'] %}<img src="{{ b['cover'] }}" alt="">
+      {% else %}<div class="gen" style="background:linear-gradient(155deg,{{ pal['from'] }},{{ pal['to'] }})"></div>
+      <span class="gen-text" aria-hidden="true"><span class="gt">{{ b['caption']|title_part }}</span>{% if b['caption']|author_part %}<span class="ga">{{ b['caption']|author_part }}</span>{% endif %}</span>{% endif %}
+      {% if b['progress_idx'] and b['para_count'] %}<span class="prog" style="width:{{ (b['progress_idx']*100//b['para_count'])|min(100) }}%"></span>{% endif %}
+    </a>
+    {% if own %}<a class="edit-overlay" href="{{ url_for('book_edit', bid=b['id']) }}" aria-label="Edit post">{% include "icons/pencil.svg" %}</a>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

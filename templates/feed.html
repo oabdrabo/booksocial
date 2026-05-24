@@ -1,0 +1,21 @@
+{% extends layout %}
+{% block content %}
+{% if continuing %}
+<div class="strip">
+  <div class="strip-h">Continue reading</div>
+  <div class="strip-row">
+    {% for b in continuing %}<div class="strip-tile" id="strip-{{ b['id'] }}">
+      <a href="{{ url_for('book_read', bid=b['id']) }}" aria-label="{{ b['caption'] or 'Continue reading' }}">
+        {% if b['cover'] %}<img src="{{ b['cover'] }}" alt="">
+        {% else %}{% set pal = cover_palette(b) %}<div class="gen" style="background:linear-gradient(155deg,{{ pal['from'] }},{{ pal['to'] }})"></div>
+        <span class="gen-text" aria-hidden="true"><span class="gt">{{ b['caption']|title_part }}</span>{% if b['caption']|author_part %}<span class="ga">{{ b['caption']|author_part }}</span>{% endif %}</span>{% endif %}
+        {% if b['progress_idx'] and b['para_count'] %}<span class="prog" style="width:{{ (b['progress_idx']*100//b['para_count'])|min(100) }}%"></span>{% endif %}
+      </a>
+      <button class="strip-x" hx-delete="{{ url_for('clear_progress', bid=b['id']) }}" hx-target="#strip-{{ b['id'] }}" hx-swap="outerHTML" aria-label="Remove from continue reading">×</button>
+    </div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+{% if not books %}<p class="empty">{{ empty }}</p>
+{% else %}{% for b in books %}{% include "partials/post.html" %}{% endfor %}{% endif %}
+{% endblock %}

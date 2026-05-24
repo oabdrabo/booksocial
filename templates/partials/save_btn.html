@@ -1,0 +1,1 @@
+<button class="btn {{ 'saved' if saved }}" hx-post="{{ url_for('save', bid=bid) }}" hx-target="this" hx-swap="outerHTML" aria-label="Save">{% if saved %}{% include "icons/bookmark-filled.svg" %}{% else %}{% include "icons/bookmark.svg" %}{% endif %}</button>

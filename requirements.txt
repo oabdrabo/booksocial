@@ -1,0 +1,6 @@
+Flask==3.0.3
+markdown==3.7
+ebooklib==0.18
+beautifulsoup4==4.12.3
+Pillow==11.0.0
+bleach==6.2.0

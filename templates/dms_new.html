@@ -1,0 +1,18 @@
+{% extends layout %}
+{% block content %}
+<div class="searchbar">
+  <input class="search" name="q" value="{{ q }}" placeholder="Search people" autocomplete="off" hx-get="{{ url_for('dms_new') }}" hx-trigger="input changed delay:250ms" hx-target="#peoplelist" hx-swap="outerHTML">
+</div>
+<div id="peoplelist" class="list">
+{% if not users %}<div class="empty">{{ "No matches." if q else "Follow people to start a conversation, or search above." }}</div>
+{% else %}{% for usr in users %}
+<a class="row tap" href="{{ url_for('dm', username=usr['username']) }}">
+  <span class="avatar">{% if usr['avatar'] %}<img src="{{ usr['avatar'] }}" alt="">{% else %}{{ usr['username'][0]|upper }}{% endif %}</span>
+  <span class="grow">
+    <b>{{ usr['display_name'] or usr['username'] }}</b>
+    <div class="m">@{{ usr['username'] }}</div>
+  </span>
+</a>
+{% endfor %}{% endif %}
+</div>
+{% endblock %}

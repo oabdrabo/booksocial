@@ -1,0 +1,25 @@
+{% extends layout %}
+{% block content %}
+<div class="list">
+{% if not clubs %}<div class="empty">You're not in any clubs yet. Open a book and tap “Start club”, or browse public clubs.</div>
+{% else %}{% for c in clubs %}
+<a class="row tap" href="{{ url_for('club', cid=c['id']) }}">
+  <span class="strip-tile" style="flex:0 0 44px;height:60px;aspect-ratio:auto;border-radius:4px">{% if c['cover'] %}<img src="{{ c['cover'] }}" alt="">{% endif %}</span>
+  <span class="grow">
+    <b>{{ c['name'] }}</b>
+    <div class="m">{{ c['book_caption']|title_part if c['book_caption'] }} · {{ c['members'] }} member{{ '' if c['members']==1 else 's' }}</div>
+  </span>
+</a>
+{% endfor %}{% endif %}
+{% if public_clubs %}<div class="strip-h" style="margin-top:18px">Discover</div>
+{% for c in public_clubs %}
+<a class="row tap" href="{{ url_for('club', cid=c['id']) }}">
+  <span class="strip-tile" style="flex:0 0 44px;height:60px;aspect-ratio:auto;border-radius:4px">{% if c['cover'] %}<img src="{{ c['cover'] }}" alt="">{% endif %}</span>
+  <span class="grow">
+    <b>{{ c['name'] }}</b>
+    <div class="m">{{ c['book_caption']|title_part if c['book_caption'] }} · {{ c['members'] }} member{{ '' if c['members']==1 else 's' }}</div>
+  </span>
+</a>
+{% endfor %}{% endif %}
+</div>
+{% endblock %}

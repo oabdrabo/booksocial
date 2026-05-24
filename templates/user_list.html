@@ -1,0 +1,15 @@
+{% extends layout %}
+{% block content %}
+<div class="list">
+{% if not users %}<div class="empty">{{ empty }}</div>
+{% else %}{% for usr in users %}
+<a class="row tap" href="{{ url_for('profile', username=usr['username']) }}">
+  <span class="avatar">{% if usr['avatar'] %}<img src="{{ usr['avatar'] }}" alt="">{% else %}{{ usr['username'][0]|upper }}{% endif %}</span>
+  <span class="grow">
+    <b>{{ usr['display_name'] or usr['username'] }}</b>
+    <div class="m">@{{ usr['username'] }}</div>
+  </span>
+</a>
+{% endfor %}{% endif %}
+</div>
+{% endblock %}

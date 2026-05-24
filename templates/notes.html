@@ -1,0 +1,12 @@
+{% extends layout %}
+{% block content %}
+<div class="list">
+{% if not notes %}<div class="empty">Tap a paragraph to highlight, then write a note.</div>
+{% else %}{% for n in notes %}
+<div class="row col">
+  <span class="m">{{ n['plain'][:80] if n['plain'] }}</span>
+  <span>{{ n['body'] }}</span>
+</div>
+{% endfor %}{% endif %}
+</div>
+{% endblock %}

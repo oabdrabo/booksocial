@@ -1,0 +1,11 @@
+{% extends layout %}
+{% block topbar %}
+<header class="bar top search">
+  <input id="q" class="input pill" name="q" placeholder="Search" value="{{ q }}" autofocus
+         hx-get="{{ url_for('search') }}" hx-trigger="input changed delay:200ms"
+         hx-target="#sres" hx-swap="innerHTML">
+</header>
+{% endblock %}
+{% block content %}
+<div id="sres">{% include "search_results.html" %}</div>
+{% endblock %}
