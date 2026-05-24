@@ -183,9 +183,21 @@ def parse_epub(fs, bid):
     author = book.get_metadata("DC", "creator")
     epub_caption = None
     if title and title[0] and title[0][0]:
-        t = title[0][0].strip()
+        ti = title[0][0].strip()
         a = author[0][0].strip() if author and author[0] and author[0][0] else ""
-        epub_caption = f"{t} — {a}" if a else t
+        epub_caption = f"{ti} — {a}" if a else ti
+    cover_bytes = None
+    for it in book.get_items_of_type(ITEM_COVER):
+        if (data := it.get_content()): cover_bytes = data; break
+    if not cover_bytes:
+        meta = book.get_metadata("OPF", "cover")
+        cid = meta[0][1].get("content") if meta and meta[0] and meta[0][1] else None
+        if cid and (it := book.get_item_with_id(cid)):
+            cover_bytes = it.get_content()
+    if not cover_bytes:
+        for it in book.get_items_of_type(ITEM_IMAGE):
+            if "cover" in (it.file_name or "").lower():
+                cover_bytes = it.get_content(); break
     images = {}
     for it in book.get_items_of_type(ITEM_IMAGE):
         if (url := save_pic(it.get_content(), "images", 1600, f"b{bid}")):
@@ -219,7 +231,7 @@ def parse_epub(fs, bid):
         if h: h.decompose()
         paras = html_paragraphs(str(soup))
         if paras or title: chapters.append((title, paras))
-    return chapters or [(None, [])], epub_caption
+    return chapters or [(None, [])], epub_caption, cover_bytes
 
 def save_pic(src, kind, max_w, prefix):
     try:
@@ -371,16 +383,12 @@ def new_book():
     if upload and upload.filename:
         fn = upload.filename.lower()
         if fn.endswith(".epub"):
-            chapters, epub_caption = parse_epub(upload, bid)
+            chapters, epub_caption, cover_bytes = parse_epub(upload, bid)
             cap = (epub_caption or (chapters[0][0] if chapters and chapters[0][0] else None))
             if cap:
                 db().execute("UPDATE books SET caption=? WHERE id=?", (cap[:200], bid))
-            try: book = epub.read_epub(upload.stream.name) if hasattr(upload.stream, "name") else None
-            except Exception: book = None
-            if book:
-                for it in book.get_items_of_type(ITEM_COVER):
-                    if (url := save_pic(it.get_content(), "covers", 1080, f"c{bid}")):
-                        db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid)); break
+            if cover_bytes and (url := save_pic(cover_bytes, "covers", 1080, f"c{bid}")):
+                db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid))
             save_chapters(bid, chapters); db().commit()
             return redirect(url_for("home"))
         elif fn.endswith((".md",".txt")):
