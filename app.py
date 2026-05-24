@@ -39,7 +39,12 @@ def _close(_):
 
 def init_db():
     for p in UP.values(): p.mkdir(parents=True, exist_ok=True)
-    c = sqlite3.connect(DB); c.executescript((BASE / "schema.sql").read_text()); c.commit(); c.close()
+    c = sqlite3.connect(DB); c.executescript((BASE / "schema.sql").read_text())
+    c.execute("PRAGMA foreign_keys=ON")
+    for tbl in ("highlights", "notes", "reading_progress", "likes", "saves", "comments", "tags"):
+        try: c.execute(f"DELETE FROM {tbl} WHERE book_id NOT IN (SELECT id FROM books)")
+        except sqlite3.OperationalError: pass
+    c.commit(); c.close()
 
 @app.before_request
 def _load_user():
