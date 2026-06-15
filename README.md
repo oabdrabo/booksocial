@@ -106,5 +106,3 @@ Free and open-source. If it's useful, you can support development — pay what y
 
 [![Donate once](https://img.shields.io/badge/☕%20Donate%20once-pay%20what%20you%20like-635bff?logo=stripe&logoColor=white)](https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00)
 [![Sponsor monthly](https://img.shields.io/badge/💜%20Sponsor%20monthly-recurring-56c4e6?logo=stripe&logoColor=white)](https://buy.stripe.com/00wbJ2f8J51S9Pv1kh5kk01)
-
-<div align="center"><sub>Built by <a href="https://github.com/oabdrabo">@oabdrabo</a></sub></div>
