@@ -79,6 +79,17 @@ Upload an EPUB to create a post, then browse the feed, open the reader, highligh
 
 In production, put booksocial behind a proxy that sets `Remote-User` and point `DB_PATH` / `UPLOADS_DIR` at persistent storage. Max upload size is 64 MB; uploaded HTML is always sanitized through the single `bleach` allow-list.
 
+## FAQ
+
+**What can I upload?**
+EPUB files — `ebooklib` parses them into chapters and paragraphs, extracts the cover, and localizes images.
+
+**How does login work?**
+Identity comes from reverse-proxy headers (`Remote-User` / `Remote-Email`); locally, `DEV_MODE` picks the user from `?as=`.
+
+**Is uploaded content sanitized?**
+Yes — all HTML passes through a single `bleach` allow-list before it's stored or rendered.
+
 ## Contributing
 
 Contributions are welcome — please read the [AI Contribution Policy](https://github.com/oabdrabo/.github/blob/main/AI_POLICY.md) first. Keep pull requests focused on a single concern, follow the existing conventions, and tests are very welcome.
