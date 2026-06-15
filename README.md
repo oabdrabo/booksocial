@@ -17,6 +17,8 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself �
 
 ---
 
+<p align="center"><img src="assets/demo.gif" width="720" alt="booksocial — feed, reader, profile, and explore" /></p>
+
 ## Overview
 
 Reading apps are libraries; social apps are feeds. booksocial puts them together — your bookshelf *is* your profile, and reading is something you do with people. Drop in an EPUB; it's ingested into clean, sanitized HTML paragraphs (cover extracted, images localized) and posted to your feed for others to read, react to, and discuss.
