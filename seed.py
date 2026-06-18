@@ -1,4 +1,3 @@
-"""Seed sample data. Run from this directory: `python seed.py`."""
 from pathlib import Path
 import app as A
 

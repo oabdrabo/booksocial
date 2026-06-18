@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Ingest a batch of classic public-domain books from Project Gutenberg.
 set -e
 cd "$(dirname "$0")"
 PY=.venv/bin/python
 
-# format: id|owner|caption
 BOOKS=(
   "1342|alice|Pride and Prejudice — Jane Austen."
   "84|bob|Frankenstein — Mary Shelley."
