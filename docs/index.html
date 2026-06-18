@@ -74,7 +74,7 @@
 <header class="hero"><div class="wrap hero-grid">
   <div>
     <div class="brand">booksocial</div>
-    <span class="eyebrow">self-hosted · flask · open source</span>
+    <span class="eyebrow">your books · your people · your server</span>
     <h1>Instagram, shaped for <em>reading</em>.</h1>
     <p class="lede">Upload an EPUB and it becomes a post — a cover, a caption, and the book itself, readable right in the feed. Then follow readers, like and save, highlight passages, and start book clubs.</p>
     <div class="cta">
@@ -99,19 +99,19 @@
   <div class="frow rev">
     <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reader.webp" alt="Reader" /></div>
     <div class="ftext"><span class="eyebrow">the reader</span><h3>Read right in the app</h3>
-      <p>A serif reading view rendered paragraph by paragraph, with a chapter <b>table of contents</b>, inline images, and <b>reading progress</b> saved as you scroll. <b>Highlight</b> passages, attach private <b>notes</b>, and edit posts <b>losslessly</b> — your original Markdown is kept.</p></div>
+      <p>A calm, distraction-free reading view with a chapter <b>table of contents</b> and your place <b>saved automatically</b> — so you always pick up where you stopped. <b>Highlight</b> the lines that land and keep <b>private notes</b> as you go.</p></div>
   </div>
 
   <div class="frow">
     <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/profile.webp" alt="Profile" /></div>
     <div class="ftext"><span class="eyebrow">profiles</span><h3>A shelf that is your profile</h3>
-      <p>Every profile is a <b>bookshelf grid</b> with stats — posts, followers, following, paragraphs read, and a <b>reading streak</b>. Books without artwork get a deterministic <b>generated cover</b> from their title.</p></div>
+      <p>Every profile is a <b>bookshelf</b> with the numbers that matter — followers, books shared, how much you've read, and a <b>reading streak</b> to keep you honest. Books without art get a handsome cover made from their title.</p></div>
   </div>
 
   <div class="frow rev">
     <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search-results.webp" alt="Full-text search" /></div>
     <div class="ftext"><span class="eyebrow">search</span><h3>Search inside the books</h3>
-      <p>SQLite <b>FTS5</b> searches the text of the books themselves and returns <b>highlighted snippets</b>, not just titles — find the line you half-remember across everything you can read.</p></div>
+      <p>Find the line you half-remember. Search looks <b>inside the books themselves</b>, not just titles, and jumps you straight to the passage with your words highlighted.</p></div>
   </div>
 
   <div class="frow">
@@ -129,7 +129,7 @@
   <div class="frow">
     <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/dm.webp" alt="Direct messages" /></div>
     <div class="ftext"><span class="eyebrow">messages</span><h3>Direct messages</h3>
-      <p>One-to-one conversations with <b>read receipts</b> and unread badges — and <b>block-aware</b>, so a block actually stops the conversation.</p></div>
+      <p>Slide into a private conversation about a book — with <b>read receipts</b> and unread badges. And when you block someone, the messages really do stop.</p></div>
   </div>
 
   <div class="frow rev">
@@ -146,23 +146,23 @@
 </div></section>
 
 <section><div class="wrap">
-  <span class="eyebrow">under the hood</span>
-  <h2>Built to self-host.</h2>
-  <p class="sub">One small Flask process, no external services.</p>
+  <span class="eyebrow">why booksocial</span>
+  <h2>Made for readers, not advertisers.</h2>
+  <p class="sub">A reading club you actually own — no feeds gaming your attention, no one selling your taste.</p>
   <div class="feats">
-    <div class="feat"><h3>EPUB ingestion</h3><p>ebooklib splits chapters and paragraphs; covers and images are extracted, localized and resized with Pillow. Markdown and .txt work too.</p></div>
-    <div class="feat"><h3>Proxy auth</h3><p>Trusts Remote-User / Remote-Email headers, so it drops behind a reverse-proxy SSO; DEV_MODE picks the user locally.</p></div>
-    <div class="feat"><h3>SQLite, all the way</h3><p>WAL, foreign keys and FTS5 full-text in one file — no database server.</p></div>
-    <div class="feat"><h3>Safe by default</h3><p>All uploaded HTML passes one bleach allow-list, with a 64&nbsp;MB cap and graceful image fallbacks.</p></div>
-    <div class="feat"><h3>Mobile-first UI</h3><p>An Instagram-shaped HTMX interface with native-feeling bottom sheets.</p></div>
-    <div class="feat"><h3>Open source</h3><p>MIT-licensed, single-file app — read it, fork it, run it.</p></div>
+    <div class="feat"><h3>Own your library</h3><p>Your books, highlights, and notes live on your own server — not in someone else's cloud. No lock-in, ever.</p></div>
+    <div class="feat"><h3>Reading, together</h3><p>Turn a solitary habit into something you share — follow friends, start a club, talk in the margins.</p></div>
+    <div class="feat"><h3>Private by default</h3><p>Go followers-only, block whoever you like. Nothing is tracked, sold, or advertised.</p></div>
+    <div class="feat"><h3>Free, forever</h3><p>Open source and free. No subscriptions, no ads, no upsells — just the app.</p></div>
+    <div class="feat"><h3>Runs on almost nothing</h3><p>A tiny self-hosted app that's happy on a spare box or a Raspberry Pi at home.</p></div>
+    <div class="feat"><h3>Make it yours</h3><p>The whole thing is open — change anything, host it your way, keep what you build.</p></div>
   </div>
 </div></section>
 
 <section class="install" id="install"><div class="wrap">
   <span class="eyebrow">get started</span>
-  <h2>Three commands.</h2>
-  <p class="sub">Needs Python. SQLite-backed, single process.</p>
+  <h2>Up and reading in three commands.</h2>
+  <p class="sub">Host it on your own machine — no accounts to sign up for, nothing to pay.</p>
   <pre><span class="sigil">$</span> git clone https://github.com/oabdrabo/booksocial &amp;&amp; cd booksocial
 <span class="sigil">$</span> pip install -r requirements.txt &amp;&amp; python seed.py
 <span class="sigil">$</span> DEV_MODE=1 flask --app app run   <span style="color:#7a6f80"># localhost:5000/?as=demo</span></pre>
