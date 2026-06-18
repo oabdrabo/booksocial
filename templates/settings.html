@@ -1,30 +1,32 @@
 {% extends layout %}
 {% block content %}
 <form method="post" action="{{ url_for('settings') }}" enctype="multipart/form-data" id="sf">
+  <div class="res-h">Profile</div>
   <label class="row tap" style="cursor:pointer">
-    <input type="file" name="avatar" accept="image/*" hidden onchange="this.parentElement.querySelector('.upico').textContent=this.files[0]?.name||''">
+    <input type="file" name="avatar" accept="image/*" hidden onchange="this.parentElement.querySelector('.upico').textContent=this.files[0]?.name||'Tap to change'">
     <span class="avatar" aria-hidden="true">{% if g.user['avatar'] %}<img src="{{ g.user['avatar'] }}" alt="">{% else %}{{ (g.user['display_name'] or g.user['username'])[0]|upper }}{% endif %}</span>
-    <span class="grow">Avatar <span class="m upico"></span></span>
+    <span class="grow"><b>Photo</b><div class="m upico">Tap to change</div></span>
     <span class="btn" aria-hidden="true">{% include "icons/upload.svg" %}</span>
   </label>
   <label class="row col">
     <span class="m">Display name</span>
-    <input class="input" name="display_name" value="{{ g.user['display_name'] or '' }}" maxlength="60">
+    <input class="input" name="display_name" value="{{ g.user['display_name'] or '' }}" maxlength="60" placeholder="{{ g.user['username'] }}">
   </label>
   <label class="row col">
     <span class="m">Bio</span>
-    <textarea class="input" name="bio" rows="3" maxlength="200">{{ g.user['bio'] or '' }}</textarea>
+    <textarea class="input" name="bio" rows="3" maxlength="200" placeholder="A line about what you read.">{{ g.user['bio'] or '' }}</textarea>
   </label>
+  <div class="res-h">Privacy</div>
   <label class="row tap">
-    <input type="checkbox" name="private" {% if g.user['private'] %}checked{% endif %}>
-    <span class="grow">Private account</span>
-    <span class="m">Only followers see your posts</span>
+    <span class="grow"><b>Private account</b><div class="m">Only followers can see your posts</div></span>
+    <input type="checkbox" name="private" class="switch" {% if g.user['private'] %}checked{% endif %}>
   </label>
 </form>
+<div class="res-h">Account</div>
 <form method="post" action="{{ url_for('logout') }}" id="lf" style="margin:0"></form>
-<button class="row tap" type="submit" form="lf" style="width:100%;border:0;background:none;font:inherit;color:var(--red);text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px" aria-label="Log out">{% include "icons/logout.svg" %}<span class="grow">Log out</span></button>
+<button class="row tap danger" type="submit" form="lf" aria-label="Log out">{% include "icons/logout.svg" %}<span class="grow">Log out</span></button>
 <div class="bar foot">
   <span class="grow"></span>
-  <button class="btn primary" type="submit" form="sf" aria-label="Save">{% include "icons/check.svg" %}</button>
+  <button class="btn primary" type="submit" form="sf" aria-label="Save changes">{% include "icons/check.svg" %}</button>
 </div>
 {% endblock %}
