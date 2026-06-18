@@ -30,13 +30,15 @@ app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
 SSO_LOGIN = os.environ.get("SSO_LOGIN_URL", "https://login.pyxis3.ai/login")
 SSO_REGISTER = os.environ.get("SSO_REGISTER_URL", "https://login.pyxis3.ai/register")
 SSO_LOGOUT = os.environ.get("SSO_LOGOUT_URL", "https://login.pyxis3.ai/api/logout")
-PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://booksocial.pyxis3.ai")
 
 
 @app.context_processor
 def _sso_links():
     from urllib.parse import quote
-    rd = quote(PUBLIC_URL + request.full_path.rstrip("?"), safe="")
+    # Redirect back to wherever the user actually is (the forwarded host), so the
+    # links are correct on app.booksocial.pyxis3.ai — and during any host move.
+    host = request.headers.get("X-Forwarded-Host") or request.host
+    rd = quote(f"https://{host}{request.full_path.rstrip('?')}", safe="")
     return {
         "sso_login": f"{SSO_LOGIN}?rd={rd}",
         "sso_register": f"{SSO_REGISTER}?rd={rd}",
