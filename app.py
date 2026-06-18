@@ -427,12 +427,15 @@ def new_book():
     if not fn.endswith(".epub") and not body_md: abort(400)
     bid = db().execute("INSERT INTO books(owner_id) VALUES(?)", (u["id"],)).lastrowid
     if fn.endswith(".epub"):
-        chapters, epub_caption, cover_bytes = parse_epub(upload, bid)
-        cap = epub_caption or (chapters[0][0] if chapters and chapters[0][0] else None)
-        if cap: db().execute("UPDATE books SET caption=? WHERE id=?", (cap[:200], bid))
-        if cover_bytes and (url := save_pic(cover_bytes, "covers", 1080, f"c{bid}")):
-            db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid))
-        save_chapters(bid, chapters); save_tags(bid); db().commit()
+        try:
+            chapters, epub_caption, cover_bytes = parse_epub(upload, bid)
+            cap = epub_caption or (chapters[0][0] if chapters and chapters[0][0] else None)
+            if cap: db().execute("UPDATE books SET caption=? WHERE id=?", (cap[:200], bid))
+            if cover_bytes and (url := save_pic(cover_bytes, "covers", 1080, f"c{bid}")):
+                db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid))
+            save_chapters(bid, chapters); save_tags(bid); db().commit()
+        except Exception:
+            db().execute("DELETE FROM books WHERE id=?", (bid,)); db().commit(); abort(400)
         return redirect(url_for("home"))
     soup = BeautifulSoup(md.markdown(body_md, extensions=["extra","sane_lists"]), "html.parser")
     img = soup.find("img")
