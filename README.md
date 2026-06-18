@@ -12,7 +12,7 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself �
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=flat-square)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=fff&style=flat-square)
 
-[Overview](#overview) · [Features](#features) · [Architecture](#architecture) · [Stack](#tech-stack) · [Install](#installation) · [Usage](#usage) · [Config](#configuration) · [Develop](#development) · [Contributing](#contributing) · [License](#license) · [Support](#support)
+[Overview](#overview) · [Screenshots](#screenshots) · [Features](#features) · [Architecture](#architecture) · [Stack](#tech-stack) · [Install](#installation) · [Usage](#usage) · [Config](#configuration) · [Develop](#development) · [Contributing](#contributing) · [License](#license) · [Support](#support)
 
 </div>
 
@@ -20,19 +20,47 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself �
 
 <p align="center"><img src="assets/demo.gif" width="720" alt="booksocial — feed, reader, profile, and explore" /></p>
 
+## Screenshots
+
+<table>
+<tr>
+<td width="33%"><img src="assets/screens/feed.webp" alt="Feed with continue-reading and book posts" /></td>
+<td width="33%"><img src="assets/screens/reader.webp" alt="In-app reader with chapters and inline images" /></td>
+<td width="33%"><img src="assets/screens/profile.webp" alt="Profile bookshelf with stats" /></td>
+</tr>
+<tr>
+<td align="center"><b>Feed</b><br/>continue-reading, covers, likes, reposts</td>
+<td align="center"><b>Reader</b><br/>chapters, progress, highlights & notes</td>
+<td align="center"><b>Profile</b><br/>your bookshelf is your profile</td>
+</tr>
+<tr>
+<td><img src="assets/screens/search.webp" alt="Discover — people, popular books, tags" /></td>
+<td><img src="assets/screens/search-results.webp" alt="Full-text search across book paragraphs" /></td>
+<td align="center" valign="middle"><em>Generated covers</em> fill in for books<br/>without artwork, and missing images<br/>degrade gracefully — never a broken icon.</td>
+</tr>
+<tr>
+<td align="center"><b>Discover</b><br/>people, popular, tags</td>
+<td align="center"><b>Full-text search</b><br/>matches inside the books themselves</td>
+<td></td>
+</tr>
+</table>
+
 ## Overview
 
 Reading apps are libraries; social apps are feeds. booksocial puts them together — your bookshelf *is* your profile, and reading is something you do with people. Drop in an EPUB; it's ingested into clean, sanitized HTML paragraphs (cover extracted, images localized) and posted to your feed for others to read, react to, and discuss.
 
 ## Features
 
-- **EPUB → readable post** — `ebooklib` parses chapters and paragraphs; HTML is sanitized with `bleach`, covers and images extracted and resized with Pillow.
-- **A real feed** — books from people you follow, with captions, covers, likes, saves, and comments.
-- **In-app reader** — chapter table of contents, paragraph-level rendering, reading progress.
+- **EPUB → readable post** — `ebooklib` parses chapters and paragraphs; HTML is sanitized with `bleach`, covers and images extracted, localized, and resized with Pillow. Markdown and plain text work too.
+- **A real feed** — books from people you follow, with captions, covers, likes, saves, comments, reposts, and quotes.
+- **In-app reader** — chapter table of contents, paragraph-level rendering, and reading progress that powers a *continue reading* shelf.
 - **Highlights & notes** — mark passages and keep private notes, scoped per book.
-- **Social graph** — follows, profiles, reposts, quotes.
-- **Book clubs** — shared spaces around a read.
-- **DMs & notifications** — direct messages and an activity inbox.
+- **Full-text search & discover** — SQLite FTS5 searches *inside* the books (highlighted snippets), alongside people, popular books, and `#hashtags`.
+- **Generated covers** — books without artwork get a deterministic gradient-and-title cover; missing images degrade gracefully instead of breaking.
+- **Social graph & privacy** — follows, profiles, reposts/quotes, private accounts (followers-only), and blocks honored across feeds, search, DMs, and clubs.
+- **Book clubs** — shared discussion spaces around a read, scoped to who can see the book.
+- **DMs & notifications** — direct messages (block-aware) and an activity inbox for likes, comments, replies, and mentions.
+- **Lossless editing** — your original Markdown is preserved, so editing a post never degrades its formatting.
 
 ## Architecture
 

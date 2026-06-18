@@ -57,6 +57,12 @@
   footer{padding:46px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
   .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
   .foot a:hover{color:var(--rose)}
+
+  .shots{display:flex;gap:18px;overflow-x:auto;padding:6px 2px 18px;scroll-snap-type:x mandatory}
+  .shots figure{flex:0 0 auto;scroll-snap-align:center;text-align:center}
+  .shots img{width:230px;border-radius:20px;border:1px solid var(--line);box-shadow:0 30px 60px -30px rgba(0,0,0,.75)}
+  .shots figcaption{margin-top:12px;color:var(--muted);font-size:13px}
+  .shots figcaption b{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -79,12 +85,28 @@
   <h2>Your bookshelf is your profile.</h2>
   <p class="sub">EPUBs become readable posts, and reading becomes something you do with people.</p>
   <div class="feats">
-    <div class="feat"><h3>EPUB → post</h3><p>ebooklib parses chapters and paragraphs; HTML is sanitized, covers and images extracted with Pillow.</p></div>
-    <div class="feat"><h3>A real feed</h3><p>Books from people you follow, with likes, saves, comments, reposts and quotes.</p></div>
-    <div class="feat"><h3>In-app reader</h3><p>Chapter table of contents, paragraph rendering, reading progress.</p></div>
+    <div class="feat"><h3>EPUB → post</h3><p>ebooklib parses chapters and paragraphs; HTML is sanitized, covers and images extracted and localized with Pillow. Markdown works too.</p></div>
+    <div class="feat"><h3>A real feed</h3><p>Books from people you follow, with likes, saves, comments, reposts and quotes — plus a continue-reading shelf.</p></div>
+    <div class="feat"><h3>In-app reader</h3><p>Chapter table of contents, paragraph rendering, and reading progress that remembers where you stopped.</p></div>
     <div class="feat"><h3>Highlights & notes</h3><p>Mark passages and keep private notes, scoped per book.</p></div>
-    <div class="feat"><h3>Book clubs</h3><p>Shared spaces around a read, plus DMs and an activity inbox.</p></div>
+    <div class="feat"><h3>Search inside books</h3><p>SQLite FTS5 finds matches in the text itself — with highlighted snippets — beside people and #hashtags.</p></div>
+    <div class="feat"><h3>Generated covers</h3><p>Books without artwork get a gradient-and-title cover, and missing images degrade gracefully — never a broken icon.</p></div>
+    <div class="feat"><h3>Social & privacy</h3><p>Follows, private accounts and blocks, honored across feeds, search, DMs and clubs.</p></div>
+    <div class="feat"><h3>Clubs & DMs</h3><p>Book clubs around a read, block-aware direct messages, and an activity inbox.</p></div>
     <div class="feat"><h3>Proxy auth</h3><p>Trusts reverse-proxy identity headers — drops cleanly behind a homelab SSO.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="eyebrow">a look inside</span>
+  <h2>From feed to full-text search.</h2>
+  <p class="sub">A single-process Flask app with an Instagram-shaped, mobile-first interface.</p>
+  <div class="shots">
+    <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/feed.webp" alt="Feed" /><figcaption><b>Feed</b><br/>continue-reading & posts</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reader.webp" alt="Reader" /><figcaption><b>Reader</b><br/>chapters & inline images</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/profile.webp" alt="Profile" /><figcaption><b>Profile</b><br/>your bookshelf</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search.webp" alt="Discover" /><figcaption><b>Discover</b><br/>people, popular, tags</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search-results.webp" alt="Full-text search" /><figcaption><b>Search</b><br/>inside the books</figcaption></figure>
   </div>
 </div></section>
 
