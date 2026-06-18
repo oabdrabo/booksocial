@@ -1,7 +1,7 @@
 {% extends layout %}
 {% block content %}
 <form id="np" method="post" action="{{ url_for('new_book') }}" enctype="multipart/form-data">
-  <textarea class="md" name="body_md" placeholder="# Title&#10;&#10;![cover](https://…)&#10;&#10;Your story in markdown…" autofocus></textarea>
+  <textarea class="md" name="body_md" placeholder="# Title&#10;&#10;Your story in markdown… #tag it&#10;&#10;Or upload an EPUB ↓" autofocus></textarea>
   <input id="fileinput" type="file" name="file" accept=".md,.txt,.epub" hidden onchange="this.form.submit()">
 </form>
 <div class="bar foot">
