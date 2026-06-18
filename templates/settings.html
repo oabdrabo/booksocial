@@ -23,8 +23,9 @@
   </label>
 </form>
 <div class="res-h">Account</div>
-<form method="post" action="{{ url_for('logout') }}" id="lf" style="margin:0"></form>
-<button class="row tap danger" type="submit" form="lf" aria-label="Log out">{% include "icons/logout.svg" %}<span class="grow">Log out</span></button>
+<!-- Sign out via the SSO portal so the shared session cookie is actually cleared
+     (a local logout wouldn't, since identity comes from the Remote-User header). -->
+<a class="row tap danger" href="{{ sso_logout }}" aria-label="Sign out">{% include "icons/logout.svg" %}<span class="grow">Sign out</span></a>
 <div class="bar foot">
   <span class="grow"></span>
   <button class="btn primary" type="submit" form="sf" aria-label="Save changes">{% include "icons/check.svg" %}</button>

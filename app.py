@@ -24,6 +24,25 @@ FEED = "b.*, u.username AS owner_username, u.display_name AS owner_display, u.av
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
 
+# Single sign-on via the shortlink portal: identity arrives as the Remote-User
+# header (see _load_user). These URLs let templates link to sign-in / sign-up /
+# sign-out with a redirect back here.
+SSO_LOGIN = os.environ.get("SSO_LOGIN_URL", "https://login.pyxis3.ai/login")
+SSO_REGISTER = os.environ.get("SSO_REGISTER_URL", "https://login.pyxis3.ai/register")
+SSO_LOGOUT = os.environ.get("SSO_LOGOUT_URL", "https://login.pyxis3.ai/api/logout")
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://booksocial.pyxis3.ai")
+
+
+@app.context_processor
+def _sso_links():
+    from urllib.parse import quote
+    rd = quote(PUBLIC_URL + request.full_path.rstrip("?"), safe="")
+    return {
+        "sso_login": f"{SSO_LOGIN}?rd={rd}",
+        "sso_register": f"{SSO_REGISTER}?rd={rd}",
+        "sso_logout": f"{SSO_LOGOUT}?rd={rd}",
+    }
+
 
 def db():
     if "db" not in g:
