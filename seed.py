@@ -1,8 +1,7 @@
-from pathlib import Path
 import app as A
 
-DB_PATH = Path(__file__).parent / "books.db"
-if DB_PATH.exists(): DB_PATH.unlink()
+for p in (A.DB, A.Path(f"{A.DB}-wal"), A.Path(f"{A.DB}-shm")):
+    if p.exists(): p.unlink()
 A.init_db()
 con = A.sqlite3.connect(A.DB); con.row_factory = A.sqlite3.Row
 con.execute("PRAGMA foreign_keys=ON")
@@ -30,15 +29,7 @@ POSTS = [
 for user, caption, body in POSTS:
     bid = con.execute("INSERT INTO books(owner_id,caption,status,visibility) VALUES(?,?,?,?)",
                       (uid(user), caption, "published", "public")).lastrowid
-    chapters = A.parse_markdown(body)
-    idx = 0
-    for ci, (title, paras) in enumerate(chapters):
-        cid = con.execute("INSERT INTO chapters(book_id,idx,title) VALUES(?,?,?)",
-                          (bid, ci, title)).lastrowid if (title or len(chapters) > 1) else None
-        for p in paras:
-            con.execute("INSERT INTO paragraphs(book_id,chapter_id,idx,html,plain) VALUES(?,?,?,?,?)",
-                        (bid, cid, idx, p["html"], p["plain"]))
-            idx += 1
+    A.write_chapters(con, bid, A.parse_markdown(body))
 
 ab = con.execute("SELECT id FROM books WHERE owner_id=?", (uid("alice"),)).fetchone()["id"]
 bb = con.execute("SELECT id FROM books WHERE owner_id=?", (uid("bob"),)).fetchone()["id"]

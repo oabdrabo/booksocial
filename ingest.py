@@ -37,13 +37,6 @@ with A.app.test_request_context():
     if cover_url:
         con.execute("UPDATE books SET cover=? WHERE id=?", (cover_url, bid))
 
-    idx = 0
-    for ci, (title, paras) in enumerate(chapters):
-        cid = con.execute("INSERT INTO chapters(book_id,idx,title) VALUES(?,?,?)",
-                          (bid, ci, title)).lastrowid if (title or len(chapters) > 1) else None
-        for p in paras:
-            con.execute("INSERT INTO paragraphs(book_id,chapter_id,idx,html,plain) VALUES(?,?,?,?,?)",
-                        (bid, cid, idx, p["html"], p["plain"]))
-            idx += 1
+    idx = A.write_chapters(con, bid, chapters)
     con.commit()
 print(f"ingested book id={bid}, owner={OWNER}, paragraphs={idx}, cover={cover_url}")
