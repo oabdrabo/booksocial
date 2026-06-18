@@ -59,16 +59,42 @@ Reading apps are libraries; social apps are feeds. booksocial puts them together
 
 ## Features
 
-- **EPUB → readable post** — `ebooklib` parses chapters and paragraphs; HTML is sanitized with `bleach`, covers and images extracted, localized, and resized with Pillow. Markdown and plain text work too.
-- **A real feed** — books from people you follow, with captions, covers, likes, saves, comments, reposts, and quotes.
-- **In-app reader** — chapter table of contents, paragraph-level rendering, and reading progress that powers a *continue reading* shelf.
-- **Highlights & notes** — mark passages and keep private notes, scoped per book.
-- **Full-text search & discover** — SQLite FTS5 searches *inside* the books (highlighted snippets), alongside people, popular books, and `#hashtags`.
-- **Generated covers** — books without artwork get a deterministic gradient-and-title cover; missing images degrade gracefully instead of breaking.
-- **Social graph & privacy** — follows, profiles, reposts/quotes, private accounts (followers-only), and blocks honored across feeds, search, DMs, and clubs.
-- **Book clubs** — shared discussion spaces around a read, scoped to who can see the book.
-- **DMs & notifications** — direct messages (block-aware) and an activity inbox for likes, comments, replies, and mentions.
-- **Lossless editing** — your original Markdown is preserved, so editing a post never degrades its formatting.
+### 📖 Reading & writing
+
+- **EPUB → readable post** — `ebooklib` splits a book into chapters and paragraphs; the cover is extracted, embedded images are localized and resized to WebP with Pillow, and all HTML is run through a single `bleach` allow-list before it's ever stored or shown.
+- **Write your own** — post in **Markdown** (or `.md`/`.txt` upload): the first heading becomes the caption, headings split chapters, and the first image becomes the cover.
+- **In-app reader** — paragraph-by-paragraph rendering in a serif reading view, a **chapter table of contents**, and **reading progress** that's saved as you scroll.
+- **Continue reading** — a shelf on your home feed that picks up every book exactly where you left off, with a progress bar per cover.
+- **Highlights & notes** — mark any passage, and attach **private** notes to individual paragraphs, scoped per book.
+- **Lossless editing** — your original Markdown source is preserved, so re-editing a post never degrades its formatting.
+
+### 💬 Social
+
+- **A real feed** — books from people you follow (plus your own), newest first; a separate **Explore** tab surfaces everything public.
+- **React & discuss** — **like**, **save/bookmark**, and **comment** with threaded replies, `@mentions`, and `#hashtags`.
+- **Reposts & quotes** — reshare a book to your followers, optionally with a quote of your own.
+- **Follows & profiles** — every profile is a **bookshelf grid** with stats: posts, followers, following, paragraphs read, and a **reading streak**.
+- **Book clubs** — create a shared space around any book and chat with members in real time (join / leave / delete).
+- **Direct messages** — 1:1 conversations with read receipts, **block-aware**, with unread badges.
+- **Notifications** — an activity inbox for likes, comments, replies, and mentions, with unread indicators in the top bar.
+
+### 🔎 Discovery
+
+- **Full-text search** — SQLite **FTS5** searches *inside* the books themselves and returns highlighted snippets, alongside matching captions and people.
+- **Discover** — when the search box is empty: popular books, people to follow, and a **`#tag` cloud**.
+- **Hashtags** — `#tags` written in captions are indexed automatically and get their own tag pages.
+
+### 🔒 Privacy & control
+
+- **Private accounts** — followers-only visibility, enforced across feeds, search, reposts, DMs, and clubs.
+- **Blocks** — block someone and they vanish from your feeds and search and can't message or interact with you.
+- **Settings** — edit display name, bio, and avatar, and toggle a private account.
+
+### 🛠️ Built for self-hosting
+
+- **Generated covers** — books without artwork get a deterministic gradient-and-title cover, and any missing image degrades gracefully instead of showing a broken icon.
+- **Proxy auth** — trusts `Remote-User` / `Remote-Email` identity headers, so it drops cleanly behind a reverse-proxy SSO; a `DEV_MODE` shortcut picks the user from `?as=` locally.
+- **Small & single-process** — Flask + SQLite (WAL, foreign keys, FTS5), an HTMX, mobile-first UI with native-feeling bottom sheets, and a 64 MB upload cap.
 
 ## Architecture
 
