@@ -19,10 +19,14 @@
 <div class="app">
 {% block topbar %}<header class="bar top"><span class="hl"><a class="brand" href="{{ url_for('home') }}" data-direct>booksocial</a></span><span class="title"></span><span class="hr"><a class="btn" href="{{ url_for('reels') }}" data-direct aria-label="Reading reels">{% include "icons/reels.svg" %}</a>{% if g.user %}<a class="btn" href="{{ url_for('clubs') }}" aria-label="Clubs">{% include "icons/users.svg" %}</a><a class="btn" href="{{ url_for('dms') }}" aria-label="Messages">{% include "icons/comment.svg" %}{% if unread_dm %}<span class="dot"></span>{% endif %}</a><a class="btn" href="{{ url_for('notifications') }}" aria-label="Notifications">{% include "icons/bell.svg" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>{% endif %}</span></header>{% endblock %}
 {% if not g.user %}
-<div class="guestbar" style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;padding:8px 14px;background:linear-gradient(90deg,#e0566e,#f0846f);color:#fff;font-size:13.5px;font-weight:500">
-  <span>📚 Reading, made social — upload a book, swipe passages, follow readers.</span>
-  <a href="{{ sso_login }}" style="background:#fff;color:#b23a52;border-radius:999px;padding:5px 14px;font-weight:600;text-decoration:none">Sign in</a>
-  <a href="{{ sso_register }}" style="border:1px solid rgba(255,255,255,.7);color:#fff;border-radius:999px;padding:5px 14px;font-weight:600;text-decoration:none">Create account</a>
+<div id="joincard" style="position:fixed;left:50%;transform:translateX(-50%);bottom:max(74px,calc(env(safe-area-inset-bottom) + 74px));z-index:60;width:calc(100% - 28px);max-width:430px;background:#fff;border:1px solid #f1e7ea;border-radius:18px;box-shadow:0 14px 44px rgba(80,28,40,.20);padding:15px 16px;display:flex;align-items:center;gap:13px">
+  <div style="flex:1;min-width:0">
+    <div style="font-weight:700;color:#1c1117;font-size:14.5px;line-height:1.2">Join booksocial</div>
+    <div style="color:#8a7680;font-size:12.5px;margin-top:2px;line-height:1.3">Follow readers, like passages, and share what you read.</div>
+  </div>
+  <a href="{{ sso_register }}" style="background:#e0566e;color:#fff;border-radius:11px;padding:9px 15px;font-weight:700;font-size:13.5px;text-decoration:none;white-space:nowrap">Sign up</a>
+  <a href="{{ sso_login }}" style="color:#e0566e;font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap">Log in</a>
+  <button onclick="document.getElementById('joincard').remove()" aria-label="Dismiss" style="position:absolute;top:6px;right:9px;border:0;background:none;color:#c7b9bf;font-size:17px;line-height:1;cursor:pointer;padding:2px">&times;</button>
 </div>
 {% endif %}
 <main id="main">{% block content %}{% endblock %}</main>
@@ -32,7 +36,7 @@
   <a class="btn" href="{{ url_for('new_book') }}" aria-label="New post">{% include "icons/plus.svg" %}</a>
   <a class="btn" href="{{ url_for('saved') }}" aria-label="Saved">{% include "icons/bookmark.svg" %}</a>
   {% if g.user %}<a class="avatar" href="{{ url_for('profile', username=g.user['username']) }}" aria-label="Your profile" data-l="{{ (g.user['display_name'] or g.user['username'])[0]|upper }}">{% if g.user['avatar'] %}<img src="{{ g.user['avatar'] }}" alt="">{% endif %}</a>
-  {% else %}<a class="btn" href="{{ sso_login }}" aria-label="Sign in">in</a>{% endif %}
+  {% else %}<a class="btn" href="{{ sso_login }}" aria-label="Sign in">{% include "icons/user-plus.svg" %}</a>{% endif %}
 </nav>
 </div>
 <div id="sheets" class="sheets" aria-hidden="true"><div class="backdrop"></div><div class="sheet" role="dialog" aria-modal="true"><div class="handle" aria-label="Drag to dismiss"></div><div class="sheet-body"></div></div></div>
