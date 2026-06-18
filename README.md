@@ -1,8 +1,9 @@
 <div align="center">
 
-# booksocial
-
-**Instagram, shaped for reading.**
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/banner-light.png" />
+  <img src="assets/banner-dark.png" alt="booksocial — Instagram, shaped for reading" width="880" />
+</picture>
 
 Upload an EPUB and it becomes a post: a cover, a caption, and the book itself — parsed into chapters and paragraphs you can read right in the feed. Then the social layer kicks in: follow people, like and save, highlight passages, leave notes, start book clubs, and DM. A small, self-hosted Flask app.
 
@@ -16,6 +17,8 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself �
 </div>
 
 ---
+
+<p align="center"><img src="assets/demo.gif" width="720" alt="booksocial — feed, reader, profile, and explore" /></p>
 
 ## Overview
 
