@@ -78,8 +78,8 @@
     <h1>Doomscrolling, but you <em>finish books</em>.</h1>
     <p class="lede">Swipe through book passages the way you scroll reels — and the moment one hooks you, tap and you're reading. Upload an EPUB and it becomes a post you read right in the feed; then follow readers, highlight passages, and start clubs.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/oabdrabo/booksocial">View on GitHub</a>
-      <a class="btn ghost" href="#install">Install</a>
+      <a class="btn" href="https://booksocial.pyxis3.ai">Open booksocial →</a>
+      <a class="btn ghost" href="https://github.com/oabdrabo/booksocial">View on GitHub</a>
     </div>
   </div>
   <div style="text-align:center"><img class="shot" style="width:300px;border-radius:24px" src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reels.webp" alt="Swipeable passage feed" /></div>
@@ -165,19 +165,24 @@
   </div>
 </div></section>
 
-<section class="install" id="install"><div class="wrap">
+<section class="install" id="start"><div class="wrap">
   <span class="eyebrow">get started</span>
-  <h2>Up and reading in three commands.</h2>
-  <p class="sub">Host it on your own machine — no accounts to sign up for, nothing to pay.</p>
-  <pre><span class="sigil">$</span> git clone https://github.com/oabdrabo/booksocial &amp;&amp; cd booksocial
-<span class="sigil">$</span> pip install -r requirements.txt &amp;&amp; python seed.py
-<span class="sigil">$</span> DEV_MODE=1 flask --app app run   <span style="color:#7a6f80"># localhost:5000/?as=demo</span></pre>
-  <p style="margin-top:22px"><a class="donate" href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">☕ Support development</a></p>
+  <h2>Start reading in seconds.</h2>
+  <p class="sub">Open booksocial, sign in, and turn your first EPUB into a post you read in the feed.</p>
+  <div class="cta">
+    <a class="btn" href="https://booksocial.pyxis3.ai">Open booksocial →</a>
+    <a class="btn ghost" href="https://booksocial.pyxis3.ai">Create an account</a>
+  </div>
+  <p style="margin-top:24px;color:var(--muted);font-size:14px">
+    Prefer to run your own? booksocial is open source and self-hostable —
+    <a href="https://github.com/oabdrabo/booksocial" style="color:var(--rose)">see the code</a>.
+  </p>
+  <p style="margin-top:16px"><a class="donate" href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">☕ Support development</a></p>
 </div></section>
 
 <footer><div class="wrap foot">
   <span>booksocial — social reading · MIT</span>
-  <nav><a href="https://github.com/oabdrabo/booksocial">GitHub</a> &nbsp; <a href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">Donate</a></nav>
+  <nav><a href="https://booksocial.pyxis3.ai">Open app</a> &nbsp; <a href="https://github.com/oabdrabo/booksocial">GitHub</a> &nbsp; <a href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">Donate</a></nav>
 </div></footer>
 </body>
 </html>
