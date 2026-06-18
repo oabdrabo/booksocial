@@ -311,8 +311,16 @@ def post_state(bid, user):
 
 def hydrate(rows, user):
     if not rows: return []
-    ctx = _vis_ctx(user, {r["owner_id"] for r in rows})
-    visible = [r for r in rows if _visible(r, ctx)]
+    src_ids = {r["repost_of"] for r in rows if r["repost_of"]}
+    originals = {}
+    if src_ids:
+        c = db()
+        originals = {o["id"]: o for o in c.execute(f"SELECT * FROM books WHERE id IN ({','.join('?'*len(src_ids))})", list(src_ids))}
+    ctx = _vis_ctx(user, {r["owner_id"] for r in rows} | {o["owner_id"] for o in originals.values()})
+    def ok(r):
+        if not _visible(r, ctx): return False
+        return _visible(originals.get(r["repost_of"]), ctx) if r["repost_of"] else True
+    visible = [r for r in rows if ok(r)]
     if not visible: return []
     c = db(); ids = [r["id"] for r in visible]; ph = ",".join("?" * len(ids))
     likes = dict(c.execute(f"SELECT book_id, COUNT(*) FROM likes WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
@@ -569,11 +577,14 @@ def clubs():
         name = (request.form.get("name") or "").strip()
         bid = request.form.get("book_id", type=int)
         if not name or not bid: abort(400)
+        _viewable(bid)
         cid = db().execute("INSERT INTO clubs(book_id, name, owner_id) VALUES(?,?,?)", (bid, name, u["id"])).lastrowid
         db().execute("INSERT INTO club_members(club_id, user_id) VALUES(?,?)", (cid, u["id"])); db().commit()
         return redirect(url_for("club", cid=cid))
     rows = db().execute("SELECT c.*, b.cover, b.caption AS book_caption, (SELECT COUNT(*) FROM club_members WHERE club_id=c.id) AS members FROM clubs c JOIN books b ON b.id=c.book_id WHERE EXISTS (SELECT 1 FROM club_members WHERE club_id=c.id AND user_id=?) OR c.owner_id=? ORDER BY c.created_at DESC", (u["id"], u["id"])).fetchall()
-    public_clubs = db().execute("SELECT c.*, b.cover, b.caption AS book_caption, (SELECT COUNT(*) FROM club_members WHERE club_id=c.id) AS members FROM clubs c JOIN books b ON b.id=c.book_id WHERE NOT EXISTS (SELECT 1 FROM club_members WHERE club_id=c.id AND user_id=?) AND c.owner_id != ? ORDER BY c.created_at DESC LIMIT 10", (u["id"], u["id"])).fetchall()
+    raw = db().execute("SELECT c.*, b.cover, b.caption AS book_caption, b.owner_id AS book_owner, b.status AS book_status, b.visibility AS book_visibility, (SELECT COUNT(*) FROM club_members WHERE club_id=c.id) AS members FROM clubs c JOIN books b ON b.id=c.book_id WHERE NOT EXISTS (SELECT 1 FROM club_members WHERE club_id=c.id AND user_id=?) AND c.owner_id != ? ORDER BY c.created_at DESC LIMIT 40", (u["id"], u["id"])).fetchall()
+    ctx = _vis_ctx(u, {r["book_owner"] for r in raw})
+    public_clubs = [r for r in raw if _visible({"owner_id": r["book_owner"], "status": r["book_status"], "visibility": r["book_visibility"]}, ctx)][:10]
     return render_template("clubs.html", clubs=rows, public_clubs=public_clubs)
 
 @app.route("/clubs/<int:cid>", methods=["GET","POST"])
@@ -581,6 +592,7 @@ def club(cid):
     u = need()
     info = db().execute("SELECT c.*, b.cover, b.caption AS book_caption FROM clubs c JOIN books b ON b.id=c.book_id WHERE c.id=?", (cid,)).fetchone()
     if not info: abort(404)
+    if not can_view(u, db().execute("SELECT * FROM books WHERE id=?", (info["book_id"],)).fetchone()): abort(404)
     is_member = db().execute("SELECT 1 FROM club_members WHERE club_id=? AND user_id=?", (cid, u["id"])).fetchone()
     if not is_member and request.args.get("join"):
         db().execute("INSERT OR IGNORE INTO club_members(club_id, user_id) VALUES(?,?)", (cid, u["id"])); db().commit()
@@ -782,6 +794,8 @@ def dm(username):
     u = need()
     other = db().execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
     if not other or other["id"] == u["id"]: abort(404)
+    if db().execute("SELECT 1 FROM blocks WHERE (blocker_id=? AND blocked_id=?) OR (blocker_id=? AND blocked_id=?)", (u["id"], other["id"], other["id"], u["id"])).fetchone():
+        abort(403)
     cid = _get_or_create_conv(u["id"], other["id"])
     if request.method == "POST":
         body = (request.form.get("body") or "").strip()
