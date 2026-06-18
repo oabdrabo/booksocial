@@ -12,46 +12,11 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself �
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=flat-square)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=fff&style=flat-square)
 
-[Overview](#overview) · [Screenshots](#screenshots) · [Features](#features) · [Architecture](#architecture) · [Stack](#tech-stack) · [Install](#installation) · [Usage](#usage) · [Config](#configuration) · [Develop](#development) · [Contributing](#contributing) · [License](#license) · [Support](#support)
+[Overview](#overview) · [Features](#features) · [Architecture](#architecture) · [Stack](#tech-stack) · [Install](#installation) · [Usage](#usage) · [Config](#configuration) · [Develop](#development) · [Contributing](#contributing) · [License](#license) · [Support](#support)
 
 </div>
 
 ---
-
-## Screenshots
-
-<table>
-<tr>
-<td width="33%"><img src="assets/screens/feed.webp" alt="Feed with continue-reading and book posts" /></td>
-<td width="33%"><img src="assets/screens/reader.webp" alt="In-app reader with chapters and inline images" /></td>
-<td width="33%"><img src="assets/screens/profile.webp" alt="Profile bookshelf with stats" /></td>
-</tr>
-<tr>
-<td align="center"><b>Feed</b><br/>continue-reading, covers, likes, reposts</td>
-<td align="center"><b>Reader</b><br/>chapters, progress, inline images</td>
-<td align="center"><b>Profile</b><br/>your bookshelf, with generated covers</td>
-</tr>
-<tr>
-<td><img src="assets/screens/search.webp" alt="Discover — people, popular books, tags" /></td>
-<td><img src="assets/screens/search-results.webp" alt="Full-text search across book paragraphs" /></td>
-<td><img src="assets/screens/club.webp" alt="Book club group chat" /></td>
-</tr>
-<tr>
-<td align="center"><b>Discover</b><br/>people, popular, #tags</td>
-<td align="center"><b>Full-text search</b><br/>matches inside the books</td>
-<td align="center"><b>Book clubs</b><br/>group chat around a read</td>
-</tr>
-<tr>
-<td><img src="assets/screens/dm.webp" alt="Direct message conversation" /></td>
-<td><img src="assets/screens/notifications.webp" alt="Activity inbox" /></td>
-<td><img src="assets/screens/settings.webp" alt="Profile and privacy settings" /></td>
-</tr>
-<tr>
-<td align="center"><b>Direct messages</b><br/>block-aware DMs</td>
-<td align="center"><b>Notifications</b><br/>likes, comments, replies, mentions</td>
-<td align="center"><b>Settings</b><br/>profile, bio, private account</td>
-</tr>
-</table>
 
 ## Overview
 
@@ -59,42 +24,57 @@ Reading apps are libraries; social apps are feeds. booksocial puts them together
 
 ## Features
 
-### 📖 Reading & writing
+Every screen below is the real app, shown next to what it does.
 
-- **EPUB → readable post** — `ebooklib` splits a book into chapters and paragraphs; the cover is extracted, embedded images are localized and resized to WebP with Pillow, and all HTML is run through a single `bleach` allow-list before it's ever stored or shown.
-- **Write your own** — post in **Markdown** (or `.md`/`.txt` upload): the first heading becomes the caption, headings split chapters, and the first image becomes the cover.
-- **In-app reader** — paragraph-by-paragraph rendering in a serif reading view, a **chapter table of contents**, and **reading progress** that's saved as you scroll.
-- **Continue reading** — a shelf on your home feed that picks up every book exactly where you left off, with a progress bar per cover.
-- **Highlights & notes** — mark any passage, and attach **private** notes to individual paragraphs, scoped per book.
-- **Lossless editing** — your original Markdown source is preserved, so re-editing a post never degrades its formatting.
+<table>
+<tr>
+<td width="34%"><img src="assets/screens/feed.webp" alt="Feed" /></td>
+<td><h3>📚 A feed of what your circle is reading</h3>
+Books from people you follow (plus your own), newest first — with <b>likes</b>, <b>saves</b>, threaded <b>comments</b> (with <code>@mentions</code> and <code>#hashtags</code>), and <b>reposts</b> with quotes. A <b>continue-reading</b> shelf picks every book back up where you left off, and a separate <b>Explore</b> tab surfaces everything public.</td>
+</tr>
+<tr>
+<td><h3>📖 Read right in the app</h3>
+A serif reading view rendered paragraph by paragraph, with a chapter <b>table of contents</b>, localized inline images, and <b>reading progress</b> saved as you scroll. <b>Highlight</b> passages and attach <b>private notes</b> to individual paragraphs. Editing is <b>lossless</b> — your original Markdown is preserved.</td>
+<td width="34%"><img src="assets/screens/reader.webp" alt="Reader" /></td>
+</tr>
+<tr>
+<td width="34%"><img src="assets/screens/profile.webp" alt="Profile" /></td>
+<td><h3>🗂️ Your bookshelf is your profile</h3>
+Every profile is a <b>bookshelf grid</b> with stats — posts, followers, following, paragraphs read, and a <b>reading streak</b>. Books without artwork get a deterministic <b>generated cover</b> from their title, and any missing image degrades gracefully instead of breaking.</td>
+</tr>
+<tr>
+<td><h3>🔎 Search inside the books</h3>
+SQLite <b>FTS5</b> searches the text of the books themselves and returns <b>highlighted snippets</b> — not just titles — alongside matching captions and people.</td>
+<td width="34%"><img src="assets/screens/search-results.webp" alt="Full-text search" /></td>
+</tr>
+<tr>
+<td width="34%"><img src="assets/screens/search.webp" alt="Discover" /></td>
+<td><h3>✨ Discover your next read</h3>
+An empty search box becomes discovery: <b>popular</b> books, <b>people</b> to follow, and a <b>#tag</b> cloud. Hashtags written in captions are indexed automatically and get their own tag pages.</td>
+</tr>
+<tr>
+<td><h3>👥 Read together in book clubs</h3>
+Spin up a <b>book club</b> around any book and chat with members in a shared space — create, join, or leave. Clubs respect book visibility.</td>
+<td width="34%"><img src="assets/screens/club.webp" alt="Book club" /></td>
+</tr>
+<tr>
+<td width="34%"><img src="assets/screens/dm.webp" alt="Direct messages" /></td>
+<td><h3>✉️ Direct messages</h3>
+One-to-one conversations with <b>read receipts</b> and unread badges — and <b>block-aware</b>, so a block actually stops the conversation.</td>
+</tr>
+<tr>
+<td><h3>🔔 An activity inbox</h3>
+Everything that happens to you in one place — <b>likes</b>, <b>comments</b>, <b>replies</b>, and <b>@mentions</b> — with unread indicators in the top bar.</td>
+<td width="34%"><img src="assets/screens/notifications.webp" alt="Notifications" /></td>
+</tr>
+<tr>
+<td width="34%"><img src="assets/screens/settings.webp" alt="Settings" /></td>
+<td><h3>🔒 Privacy & control</h3>
+Go <b>private</b> for followers-only visibility, <b>block</b> anyone (enforced across feeds, search, DMs, and clubs), and edit your <b>display name, bio, and avatar</b>.</td>
+</tr>
+</table>
 
-### 💬 Social
-
-- **A real feed** — books from people you follow (plus your own), newest first; a separate **Explore** tab surfaces everything public.
-- **React & discuss** — **like**, **save/bookmark**, and **comment** with threaded replies, `@mentions`, and `#hashtags`.
-- **Reposts & quotes** — reshare a book to your followers, optionally with a quote of your own.
-- **Follows & profiles** — every profile is a **bookshelf grid** with stats: posts, followers, following, paragraphs read, and a **reading streak**.
-- **Book clubs** — create a shared space around any book and chat with members in real time (join / leave / delete).
-- **Direct messages** — 1:1 conversations with read receipts, **block-aware**, with unread badges.
-- **Notifications** — an activity inbox for likes, comments, replies, and mentions, with unread indicators in the top bar.
-
-### 🔎 Discovery
-
-- **Full-text search** — SQLite **FTS5** searches *inside* the books themselves and returns highlighted snippets, alongside matching captions and people.
-- **Discover** — when the search box is empty: popular books, people to follow, and a **`#tag` cloud**.
-- **Hashtags** — `#tags` written in captions are indexed automatically and get their own tag pages.
-
-### 🔒 Privacy & control
-
-- **Private accounts** — followers-only visibility, enforced across feeds, search, reposts, DMs, and clubs.
-- **Blocks** — block someone and they vanish from your feeds and search and can't message or interact with you.
-- **Settings** — edit display name, bio, and avatar, and toggle a private account.
-
-### 🛠️ Built for self-hosting
-
-- **Generated covers** — books without artwork get a deterministic gradient-and-title cover, and any missing image degrades gracefully instead of showing a broken icon.
-- **Proxy auth** — trusts `Remote-User` / `Remote-Email` identity headers, so it drops cleanly behind a reverse-proxy SSO; a `DEV_MODE` shortcut picks the user from `?as=` locally.
-- **Small & single-process** — Flask + SQLite (WAL, foreign keys, FTS5), an HTMX, mobile-first UI with native-feeling bottom sheets, and a 64 MB upload cap.
+**Built to self-host:** ingests EPUB/Markdown/`.txt` (chapters, paragraphs, covers, images via `ebooklib` + Pillow); **proxy auth** via `Remote-User` headers (SSO-ready), with a `DEV_MODE` shortcut locally; **SQLite** with WAL, foreign keys, and FTS5; all uploaded HTML sanitized through one `bleach` allow-list with a 64 MB cap; a mobile-first **HTMX** UI with native-feeling bottom sheets.
 
 ## Architecture
 
