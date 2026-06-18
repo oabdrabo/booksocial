@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS books (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  caption TEXT, cover TEXT,
+  caption TEXT, cover TEXT, source_md TEXT,
   status TEXT NOT NULL DEFAULT 'published',
   visibility TEXT NOT NULL DEFAULT 'public',
   repost_of INTEGER REFERENCES books(id),

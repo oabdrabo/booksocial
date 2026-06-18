@@ -36,15 +36,24 @@ def _close(_):
     c = g.pop("db", None)
     if c: c.close()
 
+def _migrate():
+    if not DB.exists(): return
+    c = sqlite3.connect(DB)
+    if "source_md" not in {r[1] for r in c.execute("PRAGMA table_info(books)")}:
+        c.execute("ALTER TABLE books ADD COLUMN source_md TEXT"); c.commit()
+    c.close()
+
 def init_db():
     for p in UP.values(): p.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(DB); c.executescript((BASE / "schema.sql").read_text())
     c.commit(); c.close()
 
+_migrate()
+
 @app.before_request
 def _load_user():
     h = request.headers
-    name = h.get("Remote-User") or h.get("X-Remote-User")
+    name = h.get("Remote-User")
     if not name and DEV:
         name = request.args.get("as") or request.cookies.get("dev_as") or "demo"
     g.user = None
@@ -266,34 +275,54 @@ def save_tags(bid):
     for t in {m.lower() for m in re.findall(r"#([a-zA-Z0-9_]+)", (row and row["caption"]) or "")}:
         c.execute("INSERT OR IGNORE INTO tags(book_id, tag) VALUES(?,?)", (bid, t))
 
-def can_view(u, b):
+def _vis_ctx(user, owner_ids):
+    c = db(); uid = user["id"] if user else None
+    owner_ids = list(owner_ids)
+    private = {r[0] for r in c.execute(f"SELECT id FROM users WHERE private=1 AND id IN ({','.join('?'*len(owner_ids))})", owner_ids)} if owner_ids else set()
+    following = {r[0] for r in c.execute("SELECT followee_id FROM follows WHERE follower_id=?", (uid,))} if uid else set()
+    blocked = {r[0] for r in c.execute("SELECT blocked_id FROM blocks WHERE blocker_id=? UNION SELECT blocker_id FROM blocks WHERE blocked_id=?", (uid, uid))} if uid else set()
+    return {"uid": uid, "private": private, "following": following, "blocked": blocked}
+
+def _visible(b, ctx):
     if not b: return False
-    if u and u["id"] == b["owner_id"]: return True
+    if ctx["uid"] and b["owner_id"] == ctx["uid"]: return True
     if b["status"] != "published" or b["visibility"] != "public": return False
-    owner_priv = db().execute("SELECT private FROM users WHERE id=?", (b["owner_id"],)).fetchone()
-    if owner_priv and owner_priv["private"]:
-        if not u: return False
-        ok = db().execute("SELECT 1 FROM follows WHERE follower_id=? AND followee_id=?", (u["id"], b["owner_id"])).fetchone()
-        if not ok: return False
-    if u:
-        blocked = db().execute("SELECT 1 FROM blocks WHERE (blocker_id=? AND blocked_id=?) OR (blocker_id=? AND blocked_id=?)", (u["id"], b["owner_id"], b["owner_id"], u["id"])).fetchone()
-        if blocked: return False
-    return True
+    if b["owner_id"] in ctx["private"] and b["owner_id"] not in ctx["following"]: return False
+    return b["owner_id"] not in ctx["blocked"]
+
+def can_view(u, b):
+    return _visible(b, _vis_ctx(u, {b["owner_id"]})) if b else False
 
 def post_state(bid, user):
     c = db(); o = lambda q, a: c.execute(q, a).fetchone()
-    likes = o("SELECT COUNT(*) FROM likes WHERE book_id=?", (bid,))[0]
-    comments = o("SELECT COUNT(*) FROM comments WHERE book_id=?", (bid,))[0]
     liked = saved = False; progress_idx = 0
     if user:
         liked = o("SELECT 1 FROM likes WHERE user_id=? AND book_id=?", (user["id"], bid)) is not None
         saved = o("SELECT 1 FROM saves WHERE user_id=? AND book_id=?", (user["id"], bid)) is not None
         pr = o("SELECT paragraph_idx FROM reading_progress WHERE user_id=? AND book_id=?", (user["id"], bid))
         progress_idx = pr["paragraph_idx"] if pr else 0
-    return {"liked": liked, "saved": saved, "like_count": likes, "comment_count": comments, "progress_idx": progress_idx}
+    return {"liked": liked, "saved": saved,
+            "like_count": o("SELECT COUNT(*) FROM likes WHERE book_id=?", (bid,))[0],
+            "comment_count": o("SELECT COUNT(*) FROM comments WHERE book_id=?", (bid,))[0],
+            "progress_idx": progress_idx}
 
 def hydrate(rows, user):
-    return [{**dict(r), **post_state(r["id"], user)} for r in rows if can_view(user, r)]
+    if not rows: return []
+    ctx = _vis_ctx(user, {r["owner_id"] for r in rows})
+    visible = [r for r in rows if _visible(r, ctx)]
+    if not visible: return []
+    c = db(); ids = [r["id"] for r in visible]; ph = ",".join("?" * len(ids))
+    likes = dict(c.execute(f"SELECT book_id, COUNT(*) FROM likes WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
+    comments = dict(c.execute(f"SELECT book_id, COUNT(*) FROM comments WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
+    liked = saved = set(); progress = {}
+    if user:
+        a = [user["id"], *ids]
+        liked = {r[0] for r in c.execute(f"SELECT book_id FROM likes WHERE user_id=? AND book_id IN ({ph})", a)}
+        saved = {r[0] for r in c.execute(f"SELECT book_id FROM saves WHERE user_id=? AND book_id IN ({ph})", a)}
+        progress = {r[0]: r[1] for r in c.execute(f"SELECT book_id, paragraph_idx FROM reading_progress WHERE user_id=? AND book_id IN ({ph})", a)}
+    return [{**dict(r), "liked": r["id"] in liked, "saved": r["id"] in saved,
+             "like_count": likes.get(r["id"], 0), "comment_count": comments.get(r["id"], 0),
+             "progress_idx": progress.get(r["id"], 0)} for r in visible]
 
 def htmx(): return request.headers.get("HX-Request") == "true"
 
@@ -412,6 +441,7 @@ def new_book():
             db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid)); img.decompose()
     if (h := soup.find(["h1","h2"])):
         db().execute("UPDATE books SET caption=? WHERE id=?", (h.get_text(" ", strip=True)[:200], bid))
+    db().execute("UPDATE books SET source_md=? WHERE id=?", (body_md, bid))
     chapters = _split_soup(soup)
     if chapters: save_chapters(bid, chapters)
     save_tags(bid); db().commit()
@@ -424,14 +454,17 @@ def book_edit(bid):
     book = db().execute("SELECT * FROM books WHERE id=?", (bid,)).fetchone()
     if not book or book["owner_id"] != u["id"]: abort(403)
     if request.method == "GET":
-        rows = db().execute("SELECT p.html FROM paragraphs p WHERE p.book_id=? ORDER BY p.idx", (bid,)).fetchall()
-        existing = "\n\n".join(re.sub(r"<[^>]+>", "", r["html"]) for r in rows)
-        return render_template("edit_post.html", book=book, body=existing)
+        body = book["source_md"]
+        if not body:
+            rows = db().execute("SELECT p.html FROM paragraphs p WHERE p.book_id=? ORDER BY p.idx", (bid,)).fetchall()
+            body = "\n\n".join(re.sub(r"<[^>]+>", "", r["html"]) for r in rows)
+        return render_template("edit_post.html", book=book, body=body)
     body_md = (request.form.get("body_md") or "").strip()
     if not body_md: abort(400)
     soup = BeautifulSoup(md.markdown(body_md, extensions=["extra","sane_lists"]), "html.parser")
     if (h := soup.find(["h1","h2"])):
         db().execute("UPDATE books SET caption=? WHERE id=?", (h.get_text(" ", strip=True)[:200], bid))
+    db().execute("UPDATE books SET source_md=? WHERE id=?", (body_md, bid))
     save_tags(bid); save_chapters(bid, _split_soup(soup))
     return redirect(url_for("book_read", bid=bid))
 
