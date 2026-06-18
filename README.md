@@ -34,17 +34,17 @@ Books from people you follow (plus your own), newest first — with <b>likes</b>
 </tr>
 <tr>
 <td><h3>📖 Read right in the app</h3>
-A serif reading view rendered paragraph by paragraph, with a chapter <b>table of contents</b>, localized inline images, and <b>reading progress</b> saved as you scroll. <b>Highlight</b> passages and attach <b>private notes</b> to individual paragraphs. Editing is <b>lossless</b> — your original Markdown is preserved.</td>
+A calm, distraction-free reading view with a chapter <b>table of contents</b> and your place <b>saved automatically</b>, so you always pick up where you stopped. <b>Highlight</b> the lines that land, keep <b>private notes</b>, and edit a post anytime without losing its formatting.</td>
 <td width="34%"><img src="assets/screens/reader.webp" alt="Reader" /></td>
 </tr>
 <tr>
 <td width="34%"><img src="assets/screens/profile.webp" alt="Profile" /></td>
 <td><h3>🗂️ Your bookshelf is your profile</h3>
-Every profile is a <b>bookshelf grid</b> with stats — posts, followers, following, paragraphs read, and a <b>reading streak</b>. Books without artwork get a deterministic <b>generated cover</b> from their title, and any missing image degrades gracefully instead of breaking.</td>
+Every profile is a <b>bookshelf</b> with the numbers that matter — followers, books shared, how much you've read, and a <b>reading streak</b> to keep you honest. Books without art get a handsome <b>auto-made cover</b> from their title, so the shelf always looks right.</td>
 </tr>
 <tr>
 <td><h3>🔎 Search inside the books</h3>
-SQLite <b>FTS5</b> searches the text of the books themselves and returns <b>highlighted snippets</b> — not just titles — alongside matching captions and people.</td>
+Find the line you half-remember. Search looks <b>inside the books themselves</b>, not just titles, and jumps you straight to the passage with your words highlighted — plus matching titles and people.</td>
 <td width="34%"><img src="assets/screens/search-results.webp" alt="Full-text search" /></td>
 </tr>
 <tr>
@@ -74,7 +74,7 @@ Go <b>private</b> for followers-only visibility, <b>block</b> anyone (enforced a
 </tr>
 </table>
 
-**Built to self-host:** ingests EPUB/Markdown/`.txt` (chapters, paragraphs, covers, images via `ebooklib` + Pillow); **proxy auth** via `Remote-User` headers (SSO-ready), with a `DEV_MODE` shortcut locally; **SQLite** with WAL, foreign keys, and FTS5; all uploaded HTML sanitized through one `bleach` allow-list with a 64 MB cap; a mobile-first **HTMX** UI with native-feeling bottom sheets.
+**Why you'll like it:** it's *yours* — a small, self-hosted app that keeps your library, highlights, notes, and conversations on your own server. **Private by default**, **free and open source**, with nothing tracked, sold, or advertised — and light enough to run on a spare box or a Raspberry Pi at home. *(For how it's built, see [Architecture](#architecture) and [Tech stack](#tech-stack).)*
 
 ## Architecture
 
