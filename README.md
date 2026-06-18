@@ -5,7 +5,7 @@
   <img src="assets/banner-dark.png" alt="booksocial — Instagram, shaped for reading" width="880" />
 </picture>
 
-Upload an EPUB and it becomes a post: a cover, a caption, and the book itself — parsed into chapters and paragraphs you can read right in the feed. Then the social layer kicks in: follow people, like and save, highlight passages, leave notes, start book clubs, and DM. A small, self-hosted Flask app.
+Swipe through book passages the way you scroll reels — and the moment one hooks you, tap and you're reading. Upload an EPUB and it becomes a post: a cover, a caption, and the book itself, parsed into chapters and paragraphs you read right in the feed. Then the social layer kicks in: follow people, like and save, highlight passages, leave notes, start book clubs, and DM. A small, self-hosted Flask app.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-3da639.svg?style=flat-square)
 ![Flask](https://img.shields.io/badge/Flask-000?logo=flask&logoColor=fff&style=flat-square)
@@ -20,13 +20,18 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself �
 
 ## Overview
 
-Reading apps are libraries; social apps are feeds. booksocial puts them together — your bookshelf *is* your profile, and reading is something you do with people. Drop in an EPUB; it's ingested into clean, sanitized HTML paragraphs (cover extracted, images localized) and posted to your feed for others to read, react to, and discuss.
+Reading apps are libraries; social apps are feeds. booksocial puts them together — your bookshelf *is* your profile, and reading is something you do with people. Its hook is a **swipeable passage feed**: the same scroll mechanic that keeps you on Reels, aimed *at* reading instead of away from it — flick through excerpts, and tap the one that grabs you to keep reading. Drop in an EPUB; it's ingested into clean, sanitized HTML paragraphs (cover extracted, images localized) and posted to your feed for others to read, react to, and discuss.
 
 ## Features
 
 Every screen below is the real app, shown next to what it does.
 
 <table>
+<tr>
+<td><h3>🎬 Swipe your way into a book</h3>
+The feed that pulls you <b>toward</b> reading instead of away from it. Flick through <b>full-screen passages</b>, one book at a time — a great opening line, a paragraph that lands. When one catches you, <b>tap and you're reading</b> the rest, right where the excerpt left off.</td>
+<td width="34%"><img src="assets/screens/reels.webp" alt="Swipeable passage feed" /></td>
+</tr>
 <tr>
 <td width="34%"><img src="assets/screens/feed.webp" alt="Feed" /></td>
 <td><h3>📚 A feed of what your circle is reading</h3>

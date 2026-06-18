@@ -1,0 +1,24 @@
+{% extends layout %}
+{% block content %}
+<div class="reels">
+{% if not reels %}<p class="empty">No passages to show yet.</p>{% endif %}
+{% for r in reels %}{% set pal = cover_palette({'id': r['book_id']}) %}
+<article class="reel">
+  <div class="reel-bg" style="background:linear-gradient(155deg,{{ pal['from'] }},{{ pal['to'] }})">{% if r['cover'] %}<img class="reel-cover" src="{{ r['cover'] }}" alt="">{% endif %}</div>
+  <a class="reel-tap" href="{{ url_for('book_read', bid=r['book_id']) }}?p={{ r['idx'] }}" data-direct aria-label="Read {{ r['caption'] or 'this book' }}">
+    <p class="reel-text">{{ r['plain'] }}</p>
+    <span class="reel-meta">{% if r['caption'] %}<b>{{ r['caption']|title_part }}</b>{% if r['caption']|author_part %} · {{ r['caption']|author_part }}{% endif %}{% else %}@{{ r['owner_username'] }}{% endif %}</span>
+    <span class="reel-cta">Tap to read →</span>
+  </a>
+  {% with bid=r['book_id'], liked=state[r['book_id']]['liked'], saved=state[r['book_id']]['saved'], like_count=state[r['book_id']]['like_count'], comment_count=state[r['book_id']]['comment_count'] %}
+  <div class="reel-actions">
+    {% include "partials/like_btn.html" %}
+    <a class="btn" href="{{ url_for('book_comments', bid=bid) }}" aria-label="Comments">{% include "icons/comment.svg" %}{% if comment_count %}<span class="count">{{ comment_count }}</span>{% endif %}</a>
+    <span class="grow"></span>
+    {% include "partials/save_btn.html" %}
+  </div>
+  {% endwith %}
+</article>
+{% endfor %}
+</div>
+{% endblock %}
