@@ -18,8 +18,6 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself â€
 
 ---
 
-<p align="center"><img src="assets/demo.gif" width="720" alt="booksocial â€” feed, reader, profile, and explore" /></p>
-
 ## Screenshots
 
 <table>
@@ -30,18 +28,28 @@ Upload an EPUB and it becomes a post: a cover, a caption, and the book itself â€
 </tr>
 <tr>
 <td align="center"><b>Feed</b><br/>continue-reading, covers, likes, reposts</td>
-<td align="center"><b>Reader</b><br/>chapters, progress, highlights & notes</td>
-<td align="center"><b>Profile</b><br/>your bookshelf is your profile</td>
+<td align="center"><b>Reader</b><br/>chapters, progress, inline images</td>
+<td align="center"><b>Profile</b><br/>your bookshelf, with generated covers</td>
 </tr>
 <tr>
 <td><img src="assets/screens/search.webp" alt="Discover â€” people, popular books, tags" /></td>
 <td><img src="assets/screens/search-results.webp" alt="Full-text search across book paragraphs" /></td>
-<td align="center" valign="middle"><em>Generated covers</em> fill in for books<br/>without artwork, and missing images<br/>degrade gracefully â€” never a broken icon.</td>
+<td><img src="assets/screens/club.webp" alt="Book club group chat" /></td>
 </tr>
 <tr>
-<td align="center"><b>Discover</b><br/>people, popular, tags</td>
-<td align="center"><b>Full-text search</b><br/>matches inside the books themselves</td>
-<td></td>
+<td align="center"><b>Discover</b><br/>people, popular, #tags</td>
+<td align="center"><b>Full-text search</b><br/>matches inside the books</td>
+<td align="center"><b>Book clubs</b><br/>group chat around a read</td>
+</tr>
+<tr>
+<td><img src="assets/screens/dm.webp" alt="Direct message conversation" /></td>
+<td><img src="assets/screens/notifications.webp" alt="Activity inbox" /></td>
+<td><img src="assets/screens/settings.webp" alt="Profile and privacy settings" /></td>
+</tr>
+<tr>
+<td align="center"><b>Direct messages</b><br/>block-aware DMs</td>
+<td align="center"><b>Notifications</b><br/>likes, comments, replies, mentions</td>
+<td align="center"><b>Settings</b><br/>profile, bio, private account</td>
 </tr>
 </table>
 
