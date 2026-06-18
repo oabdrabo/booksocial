@@ -16,7 +16,7 @@
 </head>
 <body>
 <div class="app">
-{% block topbar %}<header class="bar top"><span class="hl"><a class="brand" href="{{ url_for('home') }}" data-direct>booksocial</a></span><span class="title"></span><span class="hr">{% if g.user %}<a class="btn" href="{{ url_for('clubs') }}" aria-label="Clubs">{% include "icons/users.svg" %}</a><a class="btn" href="{{ url_for('dms') }}" aria-label="Messages">{% include "icons/comment.svg" %}{% if unread_dm %}<span class="dot"></span>{% endif %}</a><a class="btn" href="{{ url_for('notifications') }}" aria-label="Notifications">{% include "icons/bell.svg" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>{% endif %}</span></header>{% endblock %}
+{% block topbar %}<header class="bar top"><span class="hl"><a class="brand" href="{{ url_for('home') }}" data-direct>booksocial</a></span><span class="title"></span><span class="hr"><a class="btn" href="{{ url_for('reels') }}" data-direct aria-label="Reading reels">{% include "icons/reels.svg" %}</a>{% if g.user %}<a class="btn" href="{{ url_for('clubs') }}" aria-label="Clubs">{% include "icons/users.svg" %}</a><a class="btn" href="{{ url_for('dms') }}" aria-label="Messages">{% include "icons/comment.svg" %}{% if unread_dm %}<span class="dot"></span>{% endif %}</a><a class="btn" href="{{ url_for('notifications') }}" aria-label="Notifications">{% include "icons/bell.svg" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>{% endif %}</span></header>{% endblock %}
 <main id="main">{% block content %}{% endblock %}</main>
 <nav class="bar tab">
   <a class="btn" href="{{ url_for('home') }}" data-direct aria-label="Home">{% include "icons/home.svg" %}</a>

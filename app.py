@@ -358,6 +358,31 @@ def explore():
     return feed("Explore", "No public posts yet.",
         f"SELECT {FEED} FROM books b JOIN users u ON u.id=b.owner_id WHERE b.status='published' AND b.visibility='public' ORDER BY b.updated_at DESC LIMIT 50")
 
+@app.route("/reels")
+def reels():
+    rows = db().execute(
+        "SELECT p.book_id, p.idx, p.plain, b.caption, b.cover, b.owner_id, u.username AS owner_username FROM paragraphs p JOIN books b ON b.id=p.book_id JOIN users u ON u.id=b.owner_id WHERE b.status='published' AND b.visibility='public' AND b.repost_of IS NULL AND length(p.plain) BETWEEN 180 AND 700 ORDER BY RANDOM() LIMIT 120"
+    ).fetchall()
+    ctx = _vis_ctx(g.user, {r["owner_id"] for r in rows})
+    seen, items = set(), []
+    for r in rows:
+        if r["book_id"] in seen or r["owner_id"] in ctx["blocked"]: continue
+        if r["owner_id"] in ctx["private"] and r["owner_id"] not in ctx["following"]: continue
+        seen.add(r["book_id"]); items.append(r)
+        if len(items) >= 24: break
+    state = {}
+    if items:
+        c = db(); ids = [r["book_id"] for r in items]; ph = ",".join("?" * len(ids))
+        likes = dict(c.execute(f"SELECT book_id, COUNT(*) FROM likes WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
+        comments = dict(c.execute(f"SELECT book_id, COUNT(*) FROM comments WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
+        liked = saved = set()
+        if g.user:
+            a = [g.user["id"], *ids]
+            liked = {x[0] for x in c.execute(f"SELECT book_id FROM likes WHERE user_id=? AND book_id IN ({ph})", a)}
+            saved = {x[0] for x in c.execute(f"SELECT book_id FROM saves WHERE user_id=? AND book_id IN ({ph})", a)}
+        state = {b: {"liked": b in liked, "saved": b in saved, "like_count": likes.get(b, 0), "comment_count": comments.get(b, 0)} for b in ids}
+    return render_template("reels.html", reels=items, state=state)
+
 @app.route("/saved")
 def saved():
     return feed("Saved", "Nothing saved.",
