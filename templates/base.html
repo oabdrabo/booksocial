@@ -25,7 +25,7 @@
   <a class="btn" href="{{ url_for('new_book') }}" aria-label="New post">{% include "icons/plus.svg" %}</a>
   <a class="btn" href="{{ url_for('saved') }}" aria-label="Saved">{% include "icons/bookmark.svg" %}</a>
   {% if g.user %}<a class="avatar" href="{{ url_for('profile', username=g.user['username']) }}" aria-label="Your profile" data-l="{{ (g.user['display_name'] or g.user['username'])[0]|upper }}">{% if g.user['avatar'] %}<img src="{{ g.user['avatar'] }}" alt="">{% endif %}</a>
-  {% else %}<a class="btn" href="{{ url_for('home') }}?as=demo" data-direct>in</a>{% endif %}
+  {% else %}<a class="btn" href="{{ sso_login }}" aria-label="Sign in">in</a>{% endif %}
 </nav>
 </div>
 <div id="sheets" class="sheets" aria-hidden="true"><div class="backdrop"></div><div class="sheet" role="dialog" aria-modal="true"><div class="handle" aria-label="Drag to dismiss"></div><div class="sheet-body"></div></div></div>
