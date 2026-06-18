@@ -255,8 +255,7 @@ def save_pic(src, kind, max_w, prefix):
         return url_for("uploaded", kind=kind, name=name)
     except Exception: return None
 
-def save_chapters(bid, chapters):
-    c = db()
+def write_chapters(c, bid, chapters):
     c.execute("DELETE FROM chapters WHERE book_id=?", (bid,))
     c.execute("DELETE FROM paragraphs WHERE book_id=?", (bid,))
     idx = 0
@@ -266,6 +265,10 @@ def save_chapters(bid, chapters):
         for p in paras:
             c.execute("INSERT INTO paragraphs(book_id,chapter_id,idx,html,plain) VALUES(?,?,?,?,?)",
                       (bid, cid, idx, p["html"], p["plain"])); idx += 1
+    return idx
+
+def save_chapters(bid, chapters):
+    c = db(); write_chapters(c, bid, chapters)
     c.execute("UPDATE books SET updated_at=datetime('now') WHERE id=?", (bid,)); c.commit()
 
 def save_tags(bid):
