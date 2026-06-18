@@ -1,4 +1,3 @@
-"""booksocial — Instagram-shaped social reading."""
 import io, os, re, secrets, sqlite3, tempfile
 from pathlib import Path
 
@@ -40,10 +39,6 @@ def _close(_):
 def init_db():
     for p in UP.values(): p.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(DB); c.executescript((BASE / "schema.sql").read_text())
-    c.execute("PRAGMA foreign_keys=ON")
-    for tbl in ("highlights", "notes", "reading_progress", "likes", "saves", "comments", "tags"):
-        try: c.execute(f"DELETE FROM {tbl} WHERE book_id NOT IN (SELECT id FROM books)")
-        except sqlite3.OperationalError: pass
     c.commit(); c.close()
 
 @app.before_request
@@ -168,8 +163,7 @@ def html_paragraphs(html):
         if (p := _para(el)): out.append(p)
     return out
 
-def parse_markdown(text):
-    soup = BeautifulSoup(md.markdown(text, extensions=["extra","sane_lists"]), "html.parser")
+def _split_soup(soup):
     chapters, title, paras = [], None, []
     for el in list(soup.children):
         n = getattr(el, "name", None)
@@ -179,7 +173,10 @@ def parse_markdown(text):
             title, paras = el.get_text(" ", strip=True), []
         elif (p := _para(el)): paras.append(p)
     if paras or title: chapters.append((title, paras))
-    return chapters or [(None, [])]
+    return chapters
+
+def parse_markdown(text):
+    return _split_soup(BeautifulSoup(md.markdown(text, extensions=["extra","sane_lists"]), "html.parser")) or [(None, [])]
 
 def parse_epub(fs, bid):
     from urllib.parse import unquote
@@ -261,6 +258,13 @@ def save_chapters(bid, chapters):
             c.execute("INSERT INTO paragraphs(book_id,chapter_id,idx,html,plain) VALUES(?,?,?,?,?)",
                       (bid, cid, idx, p["html"], p["plain"])); idx += 1
     c.execute("UPDATE books SET updated_at=datetime('now') WHERE id=?", (bid,)); c.commit()
+
+def save_tags(bid):
+    c = db()
+    row = c.execute("SELECT caption FROM books WHERE id=?", (bid,)).fetchone()
+    c.execute("DELETE FROM tags WHERE book_id=?", (bid,))
+    for t in {m.lower() for m in re.findall(r"#([a-zA-Z0-9_]+)", (row and row["caption"]) or "")}:
+        c.execute("INSERT OR IGNORE INTO tags(book_id, tag) VALUES(?,?)", (bid, t))
 
 def can_view(u, b):
     if not b: return False
@@ -385,50 +389,32 @@ def new_book():
     if request.method == "GET": return render_template("new.html")
     body_md = (request.form.get("body_md") or "").strip()
     upload = request.files.get("file")
+    fn = (upload.filename or "").lower() if upload else ""
+    if fn.endswith((".md", ".txt")):
+        body_md = upload.read().decode("utf-8", errors="ignore").strip()
+    if not fn.endswith(".epub") and not body_md: abort(400)
     bid = db().execute("INSERT INTO books(owner_id) VALUES(?)", (u["id"],)).lastrowid
-    if upload and upload.filename:
-        fn = upload.filename.lower()
-        if fn.endswith(".epub"):
-            chapters, epub_caption, cover_bytes = parse_epub(upload, bid)
-            cap = (epub_caption or (chapters[0][0] if chapters and chapters[0][0] else None))
-            if cap:
-                db().execute("UPDATE books SET caption=? WHERE id=?", (cap[:200], bid))
-            if cover_bytes and (url := save_pic(cover_bytes, "covers", 1080, f"c{bid}")):
-                db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid))
-            save_chapters(bid, chapters); db().commit()
-            return redirect(url_for("home"))
-        elif fn.endswith((".md",".txt")):
-            body_md = upload.read().decode("utf-8", errors="ignore")
-    if not body_md: abort(400)
+    if fn.endswith(".epub"):
+        chapters, epub_caption, cover_bytes = parse_epub(upload, bid)
+        cap = epub_caption or (chapters[0][0] if chapters and chapters[0][0] else None)
+        if cap: db().execute("UPDATE books SET caption=? WHERE id=?", (cap[:200], bid))
+        if cover_bytes and (url := save_pic(cover_bytes, "covers", 1080, f"c{bid}")):
+            db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid))
+        save_chapters(bid, chapters); save_tags(bid); db().commit()
+        return redirect(url_for("home"))
     soup = BeautifulSoup(md.markdown(body_md, extensions=["extra","sane_lists"]), "html.parser")
     img = soup.find("img")
-    if img and (src := str(img.get("src", ""))):
-        data = None
-        if src.startswith("data:"):
-            import base64
-            try: data = base64.b64decode(src.split(",", 1)[1])
-            except Exception: pass
-        elif src.startswith(("http://", "https://")):
-            import urllib.request
-            try:
-                with urllib.request.urlopen(src, timeout=5) as r: data = r.read()
-            except Exception: pass
+    if img and (src := str(img.get("src", ""))).startswith("data:"):
+        import base64
+        try: data = base64.b64decode(src.split(",", 1)[1])
+        except Exception: data = None
         if data and (url := save_pic(data, "covers", 1080, f"c{bid}")):
-            db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid))
-            img.decompose()
+            db().execute("UPDATE books SET cover=? WHERE id=?", (url, bid)); img.decompose()
     if (h := soup.find(["h1","h2"])):
         db().execute("UPDATE books SET caption=? WHERE id=?", (h.get_text(" ", strip=True)[:200], bid))
-    chapters, title, paras = [], None, []
-    for el in list(soup.children):
-        n = getattr(el, "name", None)
-        if not n: continue
-        if n in ("h1","h2"):
-            if paras or title: chapters.append((title, paras))
-            title, paras = el.get_text(" ", strip=True), []
-        elif (p := _para(el)): paras.append(p)
-    if paras or title: chapters.append((title, paras))
+    chapters = _split_soup(soup)
     if chapters: save_chapters(bid, chapters)
-    db().commit()
+    save_tags(bid); db().commit()
     return redirect(url_for("home"))
 
 
@@ -446,16 +432,7 @@ def book_edit(bid):
     soup = BeautifulSoup(md.markdown(body_md, extensions=["extra","sane_lists"]), "html.parser")
     if (h := soup.find(["h1","h2"])):
         db().execute("UPDATE books SET caption=? WHERE id=?", (h.get_text(" ", strip=True)[:200], bid))
-    chapters, title, paras = [], None, []
-    for el in list(soup.children):
-        n = getattr(el, "name", None)
-        if not n: continue
-        if n in ("h1","h2"):
-            if paras or title: chapters.append((title, paras))
-            title, paras = el.get_text(" ", strip=True), []
-        elif (p := _para(el)): paras.append(p)
-    if paras or title: chapters.append((title, paras))
-    save_chapters(bid, chapters)
+    save_tags(bid); save_chapters(bid, _split_soup(soup))
     return redirect(url_for("book_read", bid=bid))
 
 @app.post("/books/<int:bid>/delete")
@@ -494,7 +471,7 @@ def following(username):
 @app.post("/logout")
 def logout():
     resp = redirect(url_for("home"))
-    resp.delete_cookie("dev_user")
+    resp.delete_cookie("dev_as")
     return resp
 
 @app.post("/clubs/<int:cid>/leave")
@@ -657,12 +634,10 @@ def parse_mentions(text):
 
 def _toggle(table, bid):
     u = need(); c = db()
-    if c.execute(f"SELECT 1 FROM {table} WHERE user_id=? AND book_id=?", (u["id"], bid)).fetchone():
-        c.execute(f"DELETE FROM {table} WHERE user_id=? AND book_id=?", (u["id"], bid))
-        return False
-    c.execute(f"INSERT INTO {table}(user_id,book_id) VALUES(?,?)", (u["id"], bid))
-    c.commit()
-    return True
+    exists = c.execute(f"SELECT 1 FROM {table} WHERE user_id=? AND book_id=?", (u["id"], bid)).fetchone()
+    q = f"DELETE FROM {table} WHERE user_id=? AND book_id=?" if exists else f"INSERT INTO {table}(user_id,book_id) VALUES(?,?)"
+    c.execute(q, (u["id"], bid)); c.commit()
+    return not exists
 
 def _btn(name, bid):
     if htmx(): return render_template(f"partials/{name}_btn.html", bid=bid, **post_state(bid, g.user))
