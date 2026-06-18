@@ -665,6 +665,11 @@ def notify(actor_id, kind, **extra):
 def parse_mentions(text):
     return set(re.findall(r"@([a-zA-Z0-9_]+)", text or ""))
 
+def _viewable(bid):
+    b = db().execute("SELECT * FROM books WHERE id=?", (bid,)).fetchone()
+    if not can_view(g.user, b): abort(404)
+    return b
+
 def _toggle(table, bid):
     u = need(); c = db()
     exists = c.execute(f"SELECT 1 FROM {table} WHERE user_id=? AND book_id=?", (u["id"], bid)).fetchone()
@@ -678,26 +683,25 @@ def _btn(name, bid):
 
 @app.post("/books/<int:bid>/like")
 def like(bid):
-    added = _toggle("likes", bid)
-    if added:
-        owner = db().execute("SELECT owner_id FROM books WHERE id=?", (bid,)).fetchone()
-        if owner: notify(g.user["id"], "like", user_id=owner["owner_id"], book_id=bid)
+    book = _viewable(bid)
+    if _toggle("likes", bid):
+        notify(g.user["id"], "like", user_id=book["owner_id"], book_id=bid)
     return _btn("like", bid)
 
 @app.post("/books/<int:bid>/save")
-def save(bid): _toggle("saves", bid); return _btn("save", bid)
+def save(bid): _viewable(bid); _toggle("saves", bid); return _btn("save", bid)
 
 @app.post("/books/<int:bid>/comments")
 def add_comment(bid):
     u = need()
+    book = _viewable(bid)
     body = (request.form.get("body") or "").strip()
     parent_id = request.form.get("parent_id", type=int)
     if not body: abort(400)
     cur = db().execute("INSERT INTO comments(user_id,book_id,parent_id,body) VALUES(?,?,?,?)", (u["id"], bid, parent_id, body))
     db().commit()
     cid = cur.lastrowid
-    owner = db().execute("SELECT owner_id FROM books WHERE id=?", (bid,)).fetchone()
-    if owner: notify(u["id"], "comment", user_id=owner["owner_id"], book_id=bid, comment_id=cid)
+    notify(u["id"], "comment", user_id=book["owner_id"], book_id=bid, comment_id=cid)
     if parent_id:
         parent = db().execute("SELECT user_id FROM comments WHERE id=?", (parent_id,)).fetchone()
         if parent: notify(u["id"], "reply", user_id=parent["user_id"], book_id=bid, comment_id=cid)
@@ -710,6 +714,7 @@ def add_comment(bid):
 
 @app.get("/books/<int:bid>/comments")
 def book_comments(bid):
+    _viewable(bid)
     rows = db().execute("SELECT c.*, u.username FROM comments c JOIN users u ON u.id=c.user_id WHERE c.book_id=? ORDER BY COALESCE(c.parent_id, c.id), c.created_at", (bid,)).fetchall()
     return render_template("comments.html", comments=rows, bid=bid)
 
@@ -805,9 +810,12 @@ def search():
         results["books"] = hydrate(db().execute(
             f"SELECT {FEED} FROM books b JOIN users u ON u.id=b.owner_id WHERE b.status='published' AND b.visibility='public' AND b.repost_of IS NULL AND b.caption LIKE ? ORDER BY b.updated_at DESC LIMIT 12",
             (f"%{q}%",)).fetchall(), g.user)
-        results["lines"] = db().execute(
-            "SELECT p.book_id, p.idx, u.username, snippet(paragraphs_fts, 0, '<mark>', '</mark>', '…', 10) AS s FROM paragraphs_fts JOIN paragraphs p ON p.id=paragraphs_fts.paragraph_id JOIN books b ON b.id=p.book_id JOIN users u ON u.id=b.owner_id WHERE paragraphs_fts MATCH ? AND b.status='published' AND b.visibility='public' LIMIT 20",
+        lines = db().execute(
+            "SELECT p.book_id, p.idx, b.owner_id, u.username, snippet(paragraphs_fts, 0, '<mark>', '</mark>', '…', 10) AS s FROM paragraphs_fts JOIN paragraphs p ON p.id=paragraphs_fts.paragraph_id JOIN books b ON b.id=p.book_id JOIN users u ON u.id=b.owner_id WHERE paragraphs_fts MATCH ? AND b.status='published' AND b.visibility='public' LIMIT 60",
             (fq,)).fetchall()
+        ctx = _vis_ctx(g.user, {r["owner_id"] for r in lines})
+        results["lines"] = [r for r in lines if r["owner_id"] not in ctx["blocked"]
+                            and not (r["owner_id"] in ctx["private"] and r["owner_id"] not in ctx["following"])][:20]
         results["users"] = db().execute(
             "SELECT * FROM users WHERE username LIKE ? OR display_name LIKE ? LIMIT 12",
             (f"%{q}%", f"%{q}%")).fetchall()
