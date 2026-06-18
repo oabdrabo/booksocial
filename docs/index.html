@@ -185,5 +185,34 @@
   <span>booksocial — social reading · MIT</span>
   <nav><a href="https://app.booksocial.pyxis3.ai">Open app</a> &nbsp; <a href="https://github.com/oabdrabo/booksocial">GitHub</a> &nbsp; <a href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">Donate</a></nav>
 </div></footer>
+<!-- shortlink analytics — host-based attribution, active only on the
+     booksocial.pyxis3.ai proxy host (silent on raw github.io). Inbound UTM is
+     captured on the shortlink click; here we forward it onto the app links so
+     a signup in the app stays attributed to the campaign that drove the visit. -->
+<script>
+(function () {
+  var H = location.hostname;
+  if (!/\.pyxis3\.ai$/.test(H)) return;
+  var q = new URLSearchParams(location.search);
+  var cid = q.get('sl_cid') || '';
+  var utm = new URLSearchParams();
+  q.forEach(function (v, k) { if (/^utm_/.test(k)) utm.set(k, v); });
+  var J = function (b) { return new Blob([JSON.stringify(b)], { type: 'application/json' }); };
+  function ev(name, value) { try { navigator.sendBeacon('/api/event', J({ host: H, name: name, value: value || 0, cid: cid })); } catch (e) {} }
+  function conv(label, value) { new Image().src = '/api/conv?host=' + encodeURIComponent(H) + '&label=' + encodeURIComponent(label) + '&value=' + (value || 0) + '&cid=' + cid; }
+  window.bsTrack = ev;
+  ev('visit');
+  if (utm.toString()) document.querySelectorAll('a[href*="app.booksocial.pyxis3.ai"]').forEach(function (a) {
+    try { var u = new URL(a.href); utm.forEach(function (v, k) { if (!u.searchParams.has(k)) u.searchParams.set(k, v); }); a.href = u.toString(); } catch (e) {}
+  });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a'); if (!a) return;
+    var h = a.getAttribute('href') || '';
+    if (/app\.booksocial\.pyxis3\.ai/i.test(h))            { ev('open_app'); conv('open_app'); }
+    else if (/stripe\.com|donate/i.test(h))                { ev('donate');   conv('donate'); }
+    else if (/github\.com\/oabdrabo\/booksocial/i.test(h)) ev('github');
+  }, true);
+})();
+</script>
 </body>
 </html>
