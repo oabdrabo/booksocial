@@ -63,6 +63,15 @@
   .shots img{width:230px;border-radius:20px;border:1px solid var(--line);box-shadow:0 30px 60px -30px rgba(0,0,0,.75)}
   .shots figcaption{margin-top:12px;color:var(--muted);font-size:13px}
   .shots figcaption b{color:var(--text);font-weight:600}
+
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .col{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .col h4{font-family:var(--serif);font-weight:600;font-size:17px;color:var(--rose);margin-bottom:12px}
+  .col ul{list-style:none}
+  .col li{color:var(--muted);font-size:14px;padding:5px 0 5px 18px;position:relative}
+  .col li::before{content:"›";position:absolute;left:2px;color:var(--rose2);font-weight:700}
+  .col li b{color:var(--text);font-weight:600}
+  @media(max-width:820px){.cols{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -111,6 +120,52 @@
     <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/dm.webp" alt="Direct messages" /><figcaption><b>Messages</b><br/>block-aware DMs</figcaption></figure>
     <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/notifications.webp" alt="Notifications" /><figcaption><b>Inbox</b><br/>likes, replies, mentions</figcaption></figure>
     <figure><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/settings.webp" alt="Settings" /><figcaption><b>Settings</b><br/>profile & privacy</figcaption></figure>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="eyebrow">everything inside</span>
+  <h2>Every feature, in one place.</h2>
+  <p class="sub">From parsing an EPUB to a block-aware DM — here's the whole surface.</p>
+  <div class="cols">
+    <div class="col"><h4>Reading & writing</h4><ul>
+      <li><b>EPUB → post</b> — chapters, paragraphs, cover & images extracted</li>
+      <li><b>Write in Markdown</b> — or upload .md / .txt</li>
+      <li><b>In-app reader</b> with a chapter table of contents</li>
+      <li><b>Reading progress</b> + a continue-reading shelf</li>
+      <li><b>Highlights</b> and private per-paragraph <b>notes</b></li>
+      <li><b>Lossless editing</b> — original Markdown preserved</li>
+    </ul></div>
+    <div class="col"><h4>Social</h4><ul>
+      <li><b>Feed</b> of who you follow, plus an Explore tab</li>
+      <li><b>Likes, saves</b> and threaded <b>comments</b></li>
+      <li><b>@mentions</b> and <b>reposts</b> with quotes</li>
+      <li><b>Profiles</b> — bookshelf, stats & reading streak</li>
+      <li><b>Book clubs</b> — group chat around a read</li>
+      <li><b>Direct messages</b> + a notifications inbox</li>
+    </ul></div>
+    <div class="col"><h4>Discovery</h4><ul>
+      <li><b>Full-text search</b> inside the books (FTS5)</li>
+      <li>Highlighted match <b>snippets</b></li>
+      <li><b>Discover</b> — popular books & people</li>
+      <li><b>#hashtags</b>, indexed with their own tag pages</li>
+    </ul></div>
+    <div class="col"><h4>Privacy & control</h4><ul>
+      <li><b>Private accounts</b> — followers-only</li>
+      <li><b>Blocks</b>, enforced across feed, search, DMs & clubs</li>
+      <li><b>Settings</b> — name, bio, avatar, privacy toggle</li>
+    </ul></div>
+    <div class="col"><h4>Polish</h4><ul>
+      <li><b>Generated covers</b> for books without artwork</li>
+      <li>Missing images <b>degrade gracefully</b></li>
+      <li>Mobile-first <b>HTMX</b> UI with native-feeling sheets</li>
+    </ul></div>
+    <div class="col"><h4>Self-hosting</h4><ul>
+      <li><b>Proxy auth</b> via Remote-User headers (SSO-ready)</li>
+      <li><b>SQLite</b> — WAL, foreign keys, FTS5</li>
+      <li>Single process, 64&nbsp;MB upload cap</li>
+      <li>HTML sanitized through one <b>bleach</b> allow-list</li>
+    </ul></div>
   </div>
 </div></section>
 
