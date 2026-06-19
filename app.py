@@ -50,6 +50,7 @@ def db():
     if "db" not in g:
         g.db = sqlite3.connect(DB); g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys=ON")
+        g.db.execute("PRAGMA journal_mode=WAL")  # required for litestream backup
     return g.db
 
 @app.teardown_appcontext
