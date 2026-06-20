@@ -51,6 +51,14 @@ def db():
         g.db = sqlite3.connect(DB); g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys=ON")
         g.db.execute("PRAGMA journal_mode=WAL")  # required for litestream backup
+        # Perf/robustness (safe with WAL): NORMAL fsync (fewer syncs; litestream
+        # backs up anyway), 5s busy timeout, a 16MB page cache, 256MB mmap reads,
+        # and in-RAM temp trees for FTS search / GROUP BY / ORDER BY.
+        g.db.execute("PRAGMA synchronous=NORMAL")
+        g.db.execute("PRAGMA busy_timeout=5000")
+        g.db.execute("PRAGMA cache_size=-16384")
+        g.db.execute("PRAGMA mmap_size=268435456")
+        g.db.execute("PRAGMA temp_store=MEMORY")
     return g.db
 
 @app.teardown_appcontext
