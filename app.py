@@ -46,19 +46,17 @@ def _sso_links():
     }
 
 
+PRAGMAS = ("foreign_keys=ON", "journal_mode=WAL", "synchronous=NORMAL", "busy_timeout=5000",
+           "cache_size=-16384", "mmap_size=268435456", "temp_store=MEMORY")
+
+def connect():
+    c = sqlite3.connect(DB)
+    c.row_factory = sqlite3.Row
+    for p in PRAGMAS: c.execute(f"PRAGMA {p}")
+    return c
+
 def db():
-    if "db" not in g:
-        g.db = sqlite3.connect(DB); g.db.row_factory = sqlite3.Row
-        g.db.execute("PRAGMA foreign_keys=ON")
-        g.db.execute("PRAGMA journal_mode=WAL")  # required for litestream backup
-        # Perf/robustness (safe with WAL): NORMAL fsync (fewer syncs; litestream
-        # backs up anyway), 5s busy timeout, a 16MB page cache, 256MB mmap reads,
-        # and in-RAM temp trees for FTS search / GROUP BY / ORDER BY.
-        g.db.execute("PRAGMA synchronous=NORMAL")
-        g.db.execute("PRAGMA busy_timeout=5000")
-        g.db.execute("PRAGMA cache_size=-16384")
-        g.db.execute("PRAGMA mmap_size=268435456")
-        g.db.execute("PRAGMA temp_store=MEMORY")
+    if "db" not in g: g.db = connect()
     return g.db
 
 @app.teardown_appcontext
@@ -68,14 +66,14 @@ def _close(_):
 
 def _migrate():
     if not DB.exists(): return
-    c = sqlite3.connect(DB)
+    c = connect()
     if "source_md" not in {r[1] for r in c.execute("PRAGMA table_info(books)")}:
         c.execute("ALTER TABLE books ADD COLUMN source_md TEXT"); c.commit()
     c.close()
 
 def init_db():
     for p in UP.values(): p.mkdir(parents=True, exist_ok=True)
-    c = sqlite3.connect(DB); c.executescript((BASE / "schema.sql").read_text())
+    c = connect(); c.executescript((BASE / "schema.sql").read_text())
     c.commit(); c.close()
 
 _migrate()

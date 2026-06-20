@@ -12,8 +12,7 @@ print(f"downloading {URL} …")
 urllib.request.urlretrieve(URL, EPUB_PATH)
 print(f"  {EPUB_PATH.stat().st_size} bytes")
 
-con = A.sqlite3.connect(A.DB); con.row_factory = A.sqlite3.Row
-con.execute("PRAGMA foreign_keys=ON")
+con = A.connect()
 row = con.execute("SELECT id FROM users WHERE username=?", (OWNER,)).fetchone()
 if row is None: sys.exit(f"no such user: {OWNER!r} (run seed.py first)")
 uid = row["id"]
