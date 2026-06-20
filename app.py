@@ -321,6 +321,18 @@ def _visible(b, ctx):
     if b["owner_id"] in ctx["private"] and b["owner_id"] not in ctx["following"]: return False
     return b["owner_id"] not in ctx["blocked"]
 
+def social_state(ids, viewer):
+    if not ids: return {}
+    c = db(); ph = ",".join("?" * len(ids))
+    likes = dict(c.execute(f"SELECT book_id, COUNT(*) FROM likes WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
+    comments = dict(c.execute(f"SELECT book_id, COUNT(*) FROM comments WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
+    liked = saved = set()
+    if viewer:
+        a = [viewer["id"], *ids]
+        liked = {x[0] for x in c.execute(f"SELECT book_id FROM likes WHERE user_id=? AND book_id IN ({ph})", a)}
+        saved = {x[0] for x in c.execute(f"SELECT book_id FROM saves WHERE user_id=? AND book_id IN ({ph})", a)}
+    return {b: {"liked": b in liked, "saved": b in saved, "like_count": likes.get(b, 0), "comment_count": comments.get(b, 0)} for b in ids}
+
 def can_view(u, b):
     return _visible(b, _vis_ctx(u, {b["owner_id"]})) if b else False
 
@@ -350,18 +362,13 @@ def hydrate(rows, user):
         return _visible(originals.get(r["repost_of"]), ctx) if r["repost_of"] else True
     visible = [r for r in rows if ok(r)]
     if not visible: return []
-    c = db(); ids = [r["id"] for r in visible]; ph = ",".join("?" * len(ids))
-    likes = dict(c.execute(f"SELECT book_id, COUNT(*) FROM likes WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
-    comments = dict(c.execute(f"SELECT book_id, COUNT(*) FROM comments WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
-    liked = saved = set(); progress = {}
+    ids = [r["id"] for r in visible]
+    st = social_state(ids, user)
+    progress = {}
     if user:
-        a = [user["id"], *ids]
-        liked = {r[0] for r in c.execute(f"SELECT book_id FROM likes WHERE user_id=? AND book_id IN ({ph})", a)}
-        saved = {r[0] for r in c.execute(f"SELECT book_id FROM saves WHERE user_id=? AND book_id IN ({ph})", a)}
-        progress = {r[0]: r[1] for r in c.execute(f"SELECT book_id, paragraph_idx FROM reading_progress WHERE user_id=? AND book_id IN ({ph})", a)}
-    return [{**dict(r), "liked": r["id"] in liked, "saved": r["id"] in saved,
-             "like_count": likes.get(r["id"], 0), "comment_count": comments.get(r["id"], 0),
-             "progress_idx": progress.get(r["id"], 0)} for r in visible]
+        ph = ",".join("?" * len(ids))
+        progress = {r[0]: r[1] for r in db().execute(f"SELECT book_id, paragraph_idx FROM reading_progress WHERE user_id=? AND book_id IN ({ph})", [user["id"], *ids])}
+    return [{**dict(r), **st[r["id"]], "progress_idx": progress.get(r["id"], 0)} for r in visible]
 
 def htmx(): return request.headers.get("HX-Request") == "true"
 
@@ -398,17 +405,7 @@ def reels():
         if r["owner_id"] in ctx["private"] and r["owner_id"] not in ctx["following"]: continue
         seen.add(r["book_id"]); items.append(r)
         if len(items) >= 24: break
-    state = {}
-    if items:
-        c = db(); ids = [r["book_id"] for r in items]; ph = ",".join("?" * len(ids))
-        likes = dict(c.execute(f"SELECT book_id, COUNT(*) FROM likes WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
-        comments = dict(c.execute(f"SELECT book_id, COUNT(*) FROM comments WHERE book_id IN ({ph}) GROUP BY book_id", ids).fetchall())
-        liked = saved = set()
-        if g.user:
-            a = [g.user["id"], *ids]
-            liked = {x[0] for x in c.execute(f"SELECT book_id FROM likes WHERE user_id=? AND book_id IN ({ph})", a)}
-            saved = {x[0] for x in c.execute(f"SELECT book_id FROM saves WHERE user_id=? AND book_id IN ({ph})", a)}
-        state = {b: {"liked": b in liked, "saved": b in saved, "like_count": likes.get(b, 0), "comment_count": comments.get(b, 0)} for b in ids}
+    state = social_state([r["book_id"] for r in items], g.user)
     return render_template("reels.html", reels=items, state=state)
 
 @app.route("/saved")
