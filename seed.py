@@ -3,8 +3,7 @@ import app as A
 for p in (A.DB, A.Path(f"{A.DB}-wal"), A.Path(f"{A.DB}-shm")):
     if p.exists(): p.unlink()
 A.init_db()
-con = A.sqlite3.connect(A.DB); con.row_factory = A.sqlite3.Row
-con.execute("PRAGMA foreign_keys=ON")
+con = A.connect()
 
 for u, dn, bio in [("demo","Demo","Just exploring."),
                    ("alice","Alice Aurora","Reading and writing in equal measure."),
