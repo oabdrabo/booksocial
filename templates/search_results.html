@@ -30,7 +30,7 @@
 {% if results['lines'] %}<div class="res-h">In the text</div>
 {% for l in results['lines'] %}
 <a class="qhit" href="{{ url_for('book_read', bid=l['book_id']) }}#p-{{ l['idx'] }}">
-  <p class="qhit-text">{{ l['s']|safe }}</p>
+  <p class="qhit-text">{{ l['s']|hlsnippet }}</p>
   <span class="qhit-src">{% if l['caption'] %}{{ l['caption']|title_part }}{% else %}@{{ l['username'] }}{% endif %} ›</span>
 </a>
 {% endfor %}{% endif %}
