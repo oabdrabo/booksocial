@@ -154,6 +154,18 @@ def mentions_filter(text):
     out.append(escape(text[last:]))
     return Markup("".join(str(x) for x in out))
 
+
+@app.template_filter("hlsnippet")
+def hlsnippet_filter(s):
+    # FTS snippet() wraps matches in <mark>…</mark> inside PLAIN paragraph text, but that
+    # text can contain literal "<"/">" (users discuss code/HTML), so rendering it |safe
+    # was stored XSS. Escape everything, then restore only the highlight tags.
+    from markupsafe import Markup, escape
+
+    return Markup(
+        str(escape(s or "")).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>")
+    )
+
 @app.delete("/comments/<int:cid>")
 def delete_comment(cid):
     u = need()
