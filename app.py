@@ -36,7 +36,7 @@ SSO_LOGOUT = os.environ.get("SSO_LOGOUT_URL", "https://login.pyxis3.ai/api/logou
 def _sso_links():
     from urllib.parse import quote
     # Redirect back to wherever the user actually is (the forwarded host), so the
-    # links are correct on app.booksocial.pyxis3.ai — and during any host move.
+    # links are correct on app.booksocial.pyxis3.ai - and during any host move.
     host = request.headers.get("X-Forwarded-Host") or request.host
     rd = quote(f"https://{host}{request.full_path.rstrip('?')}", safe="")
     return {
@@ -111,7 +111,7 @@ def min_filter(v, m): return min(v, m)
 def title_part(caption):
     if not caption: return ""
     s = str(caption).strip().rstrip(".")
-    for sep in (" — ", " – ", " - "):
+    for sep in (" - ", " - ", " - "):
         if sep in s: return s.split(sep, 1)[0].strip()
     return s
 
@@ -119,7 +119,7 @@ def title_part(caption):
 def author_part(caption):
     if not caption: return ""
     s = str(caption).strip().rstrip(".")
-    for sep in (" — ", " – ", " - "):
+    for sep in (" - ", " - ", " - "):
         if sep in s: return s.split(sep, 1)[1].strip()
     return ""
 
@@ -237,7 +237,7 @@ def parse_epub(fs, bid):
     if title and title[0] and title[0][0]:
         ti = title[0][0].strip()
         a = author[0][0].strip() if author and author[0] and author[0][0] else ""
-        epub_caption = f"{ti} — {a}" if a else ti
+        epub_caption = f"{ti} - {a}" if a else ti
     cover_bytes = None
     for it in book.get_items_of_type(ITEM_COVER):
         if (data := it.get_content()): cover_bytes = data; break
