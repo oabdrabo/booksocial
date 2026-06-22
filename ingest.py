@@ -5,7 +5,7 @@ from ebooklib import epub, ITEM_COVER, ITEM_IMAGE
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "https://www.gutenberg.org/ebooks/11.epub.images"
 OWNER = sys.argv[2] if len(sys.argv) > 2 else "alice"
-CAPTION = sys.argv[3] if len(sys.argv) > 3 else "Alice's Adventures in Wonderland — Lewis Carroll."
+CAPTION = sys.argv[3] if len(sys.argv) > 3 else "Alice's Adventures in Wonderland - Lewis Carroll."
 EPUB_PATH = Path("/tmp/_ingest.epub")
 
 print(f"downloading {URL} …")
