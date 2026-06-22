@@ -64,19 +64,10 @@ def _close(_):
     c = g.pop("db", None)
     if c: c.close()
 
-def _migrate():
-    if not DB.exists(): return
-    c = connect()
-    if "source_md" not in {r[1] for r in c.execute("PRAGMA table_info(books)")}:
-        c.execute("ALTER TABLE books ADD COLUMN source_md TEXT"); c.commit()
-    c.close()
-
 def init_db():
     for p in UP.values(): p.mkdir(parents=True, exist_ok=True)
     c = connect(); c.executescript((BASE / "schema.sql").read_text())
     c.commit(); c.close()
-
-_migrate()
 
 @app.before_request
 def _load_user():
