@@ -1,21 +1,18 @@
 import io, os, re, secrets, sqlite3, tempfile
 from pathlib import Path
 
-import bleach
 import markdown as md
 from bs4 import BeautifulSoup
 from PIL import Image
 from ebooklib import epub, ITEM_DOCUMENT, ITEM_IMAGE, ITEM_COVER
 from flask import Flask, abort, g, redirect, render_template, request, send_from_directory, url_for
+from htmlproc import sanitize, html_paragraphs, parse_markdown
 
 BASE = Path(__file__).parent.resolve()
 DB = Path(os.environ.get("DB_PATH") or (BASE / "books.db"))
 UPROOT = Path(os.environ.get("UPLOADS_DIR") or (BASE / "uploads"))
 UP = {"covers": UPROOT / "covers", "images": UPROOT / "images"}
 DEV = os.environ.get("DEV_MODE", "1") == "1"
-TAGS = "p br strong em b i u blockquote pre code h1 h2 h3 h4 h5 h6 ul ol li a img hr span".split()
-ATTRS = {"a": ["href", "title", "rel"], "img": ["src", "alt", "title", "loading"]}
-BLOCKS = {"p","h1","h2","h3","h4","h5","h6","blockquote","pre","ul","ol","figure"}
 PALETTE = [("#1e293b","#475569"),("#3f3f46","#6b7280"),("#44403c","#78716c"),("#365314","#4d7c0f"),
            ("#7c2d12","#9a3412"),("#581c87","#7e22ce"),("#0c4a6e","#0369a1"),("#831843","#be185d"),
            ("#713f12","#a16207"),("#134e4a","#0f766e")]
@@ -183,40 +180,6 @@ def _ctx():
             "layout": "_blank.html" if request.headers.get("HX-Request") else "base.html"}
 
 
-def sanitize(html):
-    return re.sub(r"<img ", '<img loading="lazy" ', bleach.clean(html, tags=TAGS, attributes=ATTRS, strip=True))
-
-def _para(el):
-    txt = el.get_text(" ", strip=True) if hasattr(el, "get_text") else ""
-    is_img = el.name == "img"
-    if not txt and not is_img and not (hasattr(el, "find") and el.find("img")): return None
-    h = sanitize(str(el)) if (el.name in BLOCKS or is_img or el.name == "hr") else f"<p>{sanitize(str(el))}</p>"
-    return {"html": h, "plain": txt}
-
-def html_paragraphs(html):
-    soup = BeautifulSoup(html, "html.parser")
-    container = soup.body or soup
-    out, seen = [], set()
-    for el in container.find_all(["p","h1","h2","h3","h4","h5","h6","blockquote","pre","figure","img","hr"]):
-        if any(id(a) in seen for a in el.parents): continue
-        seen.add(id(el))
-        if (p := _para(el)): out.append(p)
-    return out
-
-def _split_soup(soup):
-    chapters, title, paras = [], None, []
-    for el in list(soup.children):
-        n = getattr(el, "name", None)
-        if not n: continue
-        if n in ("h1","h2"):
-            if paras or title: chapters.append((title, paras))
-            title, paras = el.get_text(" ", strip=True), []
-        elif (p := _para(el)): paras.append(p)
-    if paras or title: chapters.append((title, paras))
-    return chapters
-
-def parse_markdown(text):
-    return _split_soup(BeautifulSoup(md.markdown(text, extensions=["extra","sane_lists"]), "html.parser")) or [(None, [])]
 
 def parse_epub(fs, bid):
     from urllib.parse import unquote
