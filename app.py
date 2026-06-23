@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from ebooklib import epub, ITEM_DOCUMENT, ITEM_IMAGE, ITEM_COVER
 from flask import Flask, abort, g, redirect, render_template, request, send_from_directory, url_for
-from htmlproc import sanitize, html_paragraphs, parse_markdown
+from htmlproc import html_paragraphs, split_soup
 
 BASE = Path(__file__).parent.resolve()
 DB = Path(os.environ.get("DB_PATH") or (BASE / "books.db"))
@@ -472,7 +472,7 @@ def new_book():
     if (h := soup.find(["h1","h2"])):
         db().execute("UPDATE books SET caption=? WHERE id=?", (h.get_text(" ", strip=True)[:200], bid))
     db().execute("UPDATE books SET source_md=? WHERE id=?", (body_md, bid))
-    chapters = _split_soup(soup)
+    chapters = split_soup(soup)
     if chapters: save_chapters(bid, chapters)
     save_tags(bid); db().commit()
     return redirect(url_for("home"))
@@ -495,7 +495,7 @@ def book_edit(bid):
     if (h := soup.find(["h1","h2"])):
         db().execute("UPDATE books SET caption=? WHERE id=?", (h.get_text(" ", strip=True)[:200], bid))
     db().execute("UPDATE books SET source_md=? WHERE id=?", (body_md, bid))
-    save_tags(bid); save_chapters(bid, _split_soup(soup))
+    save_tags(bid); save_chapters(bid, split_soup(soup))
     return redirect(url_for("book_read", bid=bid))
 
 @app.post("/books/<int:bid>/delete")
