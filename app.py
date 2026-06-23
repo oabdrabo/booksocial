@@ -781,9 +781,9 @@ def dms_new():
     q = (request.args.get("q") or "").strip()
     users = []
     if q:
-        users = db().execute("SELECT username, display_name, avatar FROM users WHERE id != ? AND (username LIKE ? OR display_name LIKE ?) LIMIT 20", (u["id"], f"%{q}%", f"%{q}%")).fetchall()
+        users = db().execute("SELECT username, display_name, avatar FROM users WHERE id != ? AND (username LIKE ? OR display_name LIKE ?) ORDER BY username LIMIT 20", (u["id"], f"%{q}%", f"%{q}%")).fetchall()
     else:
-        users = db().execute("SELECT DISTINCT usr.username, usr.display_name, usr.avatar FROM users usr JOIN follows f ON (f.followee_id=usr.id AND f.follower_id=?) WHERE usr.id != ? LIMIT 20", (u["id"], u["id"])).fetchall()
+        users = db().execute("SELECT DISTINCT usr.username, usr.display_name, usr.avatar FROM users usr JOIN follows f ON (f.followee_id=usr.id AND f.follower_id=?) WHERE usr.id != ? ORDER BY usr.username LIMIT 20", (u["id"], u["id"])).fetchall()
     return render_template("dms_new.html", q=q, users=users)
 
 @app.get("/dms")
@@ -847,13 +847,13 @@ def search():
             f"SELECT {FEED} FROM books b JOIN users u ON u.id=b.owner_id WHERE b.status='published' AND b.visibility='public' AND b.repost_of IS NULL AND b.caption LIKE ? ORDER BY b.updated_at DESC LIMIT 12",
             (f"%{q}%",)).fetchall(), g.user)
         lines = db().execute(
-            "SELECT p.book_id, p.idx, b.owner_id, b.caption, u.username, snippet(paragraphs_fts, 0, '<mark>', '</mark>', '…', 12) AS s FROM paragraphs_fts JOIN paragraphs p ON p.id=paragraphs_fts.paragraph_id JOIN books b ON b.id=p.book_id JOIN users u ON u.id=b.owner_id WHERE paragraphs_fts MATCH ? AND b.status='published' AND b.visibility='public' LIMIT 60",
+            "SELECT p.book_id, p.idx, b.owner_id, b.caption, u.username, snippet(paragraphs_fts, 0, '<mark>', '</mark>', '…', 12) AS s FROM paragraphs_fts JOIN paragraphs p ON p.id=paragraphs_fts.paragraph_id JOIN books b ON b.id=p.book_id JOIN users u ON u.id=b.owner_id WHERE paragraphs_fts MATCH ? AND b.status='published' AND b.visibility='public' ORDER BY rank LIMIT 60",
             (fq,)).fetchall()
         ctx = _vis_ctx(g.user, {r["owner_id"] for r in lines})
         results["lines"] = [r for r in lines if r["owner_id"] not in ctx["blocked"]
                             and not (r["owner_id"] in ctx["private"] and r["owner_id"] not in ctx["following"])][:20]
         results["users"] = db().execute(
-            "SELECT * FROM users WHERE username LIKE ? OR display_name LIKE ? LIMIT 12",
+            "SELECT * FROM users WHERE username LIKE ? OR display_name LIKE ? ORDER BY username LIMIT 12",
             (f"%{q}%", f"%{q}%")).fetchall()
     discover = {"books": [], "tags": [], "users": []}
     if not q:
