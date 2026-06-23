@@ -1,4 +1,5 @@
 import app as A
+from htmlproc import parse_markdown
 
 for p in (A.DB, A.Path(f"{A.DB}-wal"), A.Path(f"{A.DB}-shm")):
     if p.exists(): p.unlink()
@@ -28,7 +29,7 @@ POSTS = [
 for user, caption, body in POSTS:
     bid = con.execute("INSERT INTO books(owner_id,caption,status,visibility) VALUES(?,?,?,?)",
                       (uid(user), caption, "published", "public")).lastrowid
-    A.write_chapters(con, bid, A.parse_markdown(body))
+    A.write_chapters(con, bid, parse_markdown(body))
 
 ab = con.execute("SELECT id FROM books WHERE owner_id=?", (uid("alice"),)).fetchone()["id"]
 bb = con.execute("SELECT id FROM books WHERE owner_id=?", (uid("bob"),)).fetchone()["id"]

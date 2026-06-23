@@ -34,7 +34,7 @@ def html_paragraphs(html):
     return out
 
 
-def _split_soup(soup):
+def split_soup(soup):
     chapters, title, paras = [], None, []
     for el in list(soup.children):
         n = getattr(el, "name", None)
@@ -52,4 +52,4 @@ def _split_soup(soup):
 
 
 def parse_markdown(text):
-    return _split_soup(BeautifulSoup(md.markdown(text, extensions=["extra", "sane_lists"]), "html.parser")) or [(None, [])]
+    return split_soup(BeautifulSoup(md.markdown(text, extensions=["extra", "sane_lists"]), "html.parser")) or [(None, [])]
