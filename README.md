@@ -146,7 +146,7 @@ Contributions are welcome - please read the [AI Contribution Policy](https://git
 
 ## License
 
-[MIT](LICENSE) © 2026 Omar Abdrabo
+[MIT](LICENSE) © 2026 PYXIS3
 
 ## Support
 
