@@ -181,7 +181,6 @@ body:has(.bar.foot) .bar.tab{display:none}
 .label{font-family:"Inter",sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted);text-align:center;margin:2.5em 0 1em;font-feature-settings:"tnum"}
 .label::before,.label::after{content:"";display:inline-block;width:24px;height:1px;background:var(--separator);vertical-align:middle;margin:0 12px}
 
-
 .comments{padding:0 14px 16px}
 .comment{padding:10px 0;font-size:14px;border-bottom:1px solid var(--rule);line-height:1.45;position:relative;padding-right:80px}
 .comment.reply{padding-left:32px;border-left:2px solid var(--separator);margin-left:8px}
@@ -265,7 +264,6 @@ body:has(.bar.foot) .bar.tab{display:none}
 .reel-actions .btn{color:#fff}
 .reel-actions .btn .count{color:#fff;font-size:13px;margin-left:4px}
 
-/* ── utility-screen polish ── */
 .row.tap{transition:background 120ms}
 .row.tap:hover{background:var(--hover)}
 .list .row .avatar,#sres .row .avatar{box-shadow:0 0 0 1px var(--rule)}

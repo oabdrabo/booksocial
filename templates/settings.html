@@ -23,8 +23,7 @@
   </label>
 </form>
 <div class="res-h">Account</div>
-<!-- Sign out via the SSO portal so the shared session cookie is actually cleared
-     (a local logout wouldn't, since identity comes from the Remote-User header). -->
+
 <a class="row tap danger" href="{{ sso_logout }}" aria-label="Sign out">{% include "icons/logout.svg" %}<span class="grow">Sign out</span></a>
 <div class="bar foot">
   <span class="grow"></span>

@@ -21,19 +21,14 @@ FEED = "b.*, u.username AS owner_username, u.display_name AS owner_display, u.av
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
 
-# Single sign-on via the shortlink portal: identity arrives as the Remote-User
-# header (see _load_user). These URLs let templates link to sign-in / sign-up /
-# sign-out with a redirect back here.
 SSO_LOGIN = os.environ.get("SSO_LOGIN_URL", "https://login.pyxis3.ai/login")
 SSO_REGISTER = os.environ.get("SSO_REGISTER_URL", "https://login.pyxis3.ai/register")
 SSO_LOGOUT = os.environ.get("SSO_LOGOUT_URL", "https://login.pyxis3.ai/api/logout")
 
-
 @app.context_processor
 def _sso_links():
     from urllib.parse import quote
-    # Redirect back to wherever the user actually is (the forwarded host), so the
-    # links are correct on app.booksocial.pyxis3.ai - and during any host move.
+
     host = request.headers.get("X-Forwarded-Host") or request.host
     rd = quote(f"https://{host}{request.full_path.rstrip('?')}", safe="")
     return {
@@ -41,7 +36,6 @@ def _sso_links():
         "sso_register": f"{SSO_REGISTER}?rd={rd}",
         "sso_logout": f"{SSO_LOGOUT}?rd={rd}",
     }
-
 
 PRAGMAS = ("foreign_keys=ON", "journal_mode=WAL", "synchronous=NORMAL", "busy_timeout=5000",
            "cache_size=-16384", "mmap_size=268435456", "temp_store=MEMORY")
@@ -142,12 +136,9 @@ def mentions_filter(text):
     out.append(escape(text[last:]))
     return Markup("".join(str(x) for x in out))
 
-
 @app.template_filter("hlsnippet")
 def hlsnippet_filter(s):
-    # FTS snippet() wraps matches in <mark>…</mark> inside PLAIN paragraph text, but that
-    # text can contain literal "<"/">" (users discuss code/HTML), so rendering it |safe
-    # was stored XSS. Escape everything, then restore only the highlight tags.
+
     from markupsafe import Markup, escape
 
     return Markup(
@@ -178,8 +169,6 @@ def _ctx():
         except Exception: pass
     return {"cover_palette": cover_palette, "read_time": read_time, "unread_count": unread, "unread_dm": unread_dm,
             "layout": "_blank.html" if request.headers.get("HX-Request") else "base.html"}
-
-
 
 def parse_epub(fs, bid):
     from urllib.parse import unquote
@@ -342,7 +331,6 @@ def feed(title, empty, sql, args=()):
     return render_template("feed.html", title=title, empty=empty,
                            books=hydrate(db().execute(sql, args).fetchall(), g.user))
 
-
 @app.route("/")
 def home():
     if not g.user: return redirect(url_for("explore"))
@@ -438,7 +426,6 @@ def follow(uid):
     if htmx(): return render_template("partials/follow_btn.html", target=target, is_following=not existing)
     return redirect(url_for("profile", username=target["username"]))
 
-
 @app.route("/new", methods=["GET","POST"])
 def new_book():
     u = need()
@@ -476,7 +463,6 @@ def new_book():
     if chapters: save_chapters(bid, chapters)
     save_tags(bid); db().commit()
     return redirect(url_for("home"))
-
 
 @app.route("/books/<int:bid>/edit", methods=["GET","POST"])
 def book_edit(bid):
@@ -688,7 +674,6 @@ def book_notes(bid):
     rows = db().execute("SELECT n.*, p.plain FROM notes n LEFT JOIN paragraphs p ON p.book_id=n.book_id AND p.idx=n.paragraph_idx WHERE n.user_id=? AND n.book_id=? ORDER BY n.paragraph_idx", (u["id"], bid)).fetchall()
     return render_template("notes.html", bid=bid, notes=rows)
 
-
 def notify(actor_id, kind, **extra):
     c = db()
     target_user = extra.get("user_id")
@@ -765,7 +750,6 @@ def notifications_count():
     n = db().execute("SELECT COUNT(*) FROM notifications WHERE user_id=? AND read_at IS NULL", (u["id"],)).fetchone()[0]
     return str(n)
 
-
 def _conv_pair(a, b): return (a, b) if a < b else (b, a)
 
 def _get_or_create_conv(a, b):
@@ -835,7 +819,6 @@ def dms_count():
     n = db().execute("SELECT COUNT(*) FROM messages m JOIN conversations c ON c.id=m.conversation_id WHERE (c.user_a=? OR c.user_b=?) AND m.sender_id!=? AND m.read_at IS NULL", (u["id"], u["id"], u["id"])).fetchone()[0]
     return str(n)
 
-
 @app.get("/search")
 def search():
     q = (request.args.get("q") or "").strip()
@@ -865,7 +848,6 @@ def search():
     tpl = "search_results.html" if request.headers.get("HX-Target") == "sres" else "search.html"
     return render_template(tpl, q=q, results=results, discover=discover)
 
-
 @app.get("/uploads/<kind>/<name>")
 def uploaded(kind, name):
     if kind not in UP: abort(404)
@@ -876,7 +858,6 @@ def uploaded(kind, name):
 @app.errorhandler(404)
 def _err(e):
     return render_template("error.html", code=e.code, msg={401:"Sign in.",403:"Not yours.",404:"Not found."}.get(e.code,"")), e.code
-
 
 if __name__ == "__main__":
     init_db()
