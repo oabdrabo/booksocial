@@ -12,7 +12,7 @@ Swipe through book passages the way you scroll reels - and the moment one hooks 
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=flat-square)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=fff&style=flat-square)
 
-[Overview](#overview) · [Features](#features) · [Architecture](#architecture) · [Stack](#tech-stack) · [Install](#installation) · [Usage](#usage) · [Config](#configuration) · [Develop](#development) · [Contributing](#contributing) · [License](#license) · [Support](#support)
+[Overview](#overview) · [Features](#features) · [Architecture](#architecture) · [Stack](#tech-stack) · [Install](#installation) · [Usage](#usage) · [Config](#configuration) · [Develop](#development) · [Contributing](#contributing) · [FAQ](#faq) · [License](#license) · [Support](#support)
 
 </div>
 
@@ -99,6 +99,7 @@ Data model centers on `users`, `books` (with `chapters` and `paragraphs`), and t
 | EPUB | ebooklib + BeautifulSoup |
 | Sanitizing | bleach |
 | Images | Pillow |
+| Rich text | Markdown |
 
 ## Installation
 
