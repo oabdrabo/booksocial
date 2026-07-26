@@ -508,14 +508,14 @@ def followers(username):
     t = db().execute("SELECT id, username, display_name FROM users WHERE username=?", (username,)).fetchone()
     if not t: abort(404)
     users = db().execute("SELECT usr.username, usr.display_name, usr.avatar FROM follows f JOIN users usr ON usr.id=f.follower_id WHERE f.followee_id=? ORDER BY usr.username", (t["id"],)).fetchall()
-    return render_template("user_list.html", title=f"{t['display_name'] or t['username']} · followers", users=users, empty="No followers yet.")
+    return render_template("user_list.html", title=f"{t['display_name'] or t['username']}, followers", users=users, empty="No followers yet.")
 
 @app.get("/u/<username>/following")
 def following(username):
     t = db().execute("SELECT id, username, display_name FROM users WHERE username=?", (username,)).fetchone()
     if not t: abort(404)
     users = db().execute("SELECT usr.username, usr.display_name, usr.avatar FROM follows f JOIN users usr ON usr.id=f.followee_id WHERE f.follower_id=? ORDER BY usr.username", (t["id"],)).fetchall()
-    return render_template("user_list.html", title=f"{t['display_name'] or t['username']} · following", users=users, empty="Not following anyone yet.")
+    return render_template("user_list.html", title=f"{t['display_name'] or t['username']}, following", users=users, empty="Not following anyone yet.")
 
 @app.post("/logout")
 def logout():
