@@ -8,7 +8,7 @@
     <span class="head">
       <span class="avatar" aria-hidden="true">{% if b['owner_avatar'] %}<img src="{{ b['owner_avatar'] }}" alt="">{% else %}{{ b['owner_username'][0]|upper }}{% endif %}</span>
       <b>{{ b['owner_username'] }}</b>
-      {% if b['repost_of'] %}<span class="time">· reposted</span>{% elif b['para_count'] %}<span class="time">· {{ read_time(b['para_count']) }}</span>{% endif %}
+      {% if b['repost_of'] %}<span class="time">reposted</span>{% elif b['para_count'] %}<span class="time">{{ read_time(b['para_count']) }}</span>{% endif %}
     </span>
     {% if b['quote'] %}<span class="quote">{{ b['quote'] }}</span>{% endif %}
     {% if b['caption'] %}<span class="foot">{{ b['caption'] }}</span>{% endif %}
