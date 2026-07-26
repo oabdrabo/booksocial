@@ -7,7 +7,7 @@
   <div class="reel-bg" style="background:linear-gradient(155deg,{{ pal['from'] }},{{ pal['to'] }})">{% if r['cover'] %}<img class="reel-cover" src="{{ r['cover'] }}" alt="">{% endif %}</div>
   <a class="reel-tap" href="{{ url_for('book_read', bid=r['book_id']) }}?p={{ r['idx'] }}" data-direct aria-label="Read {{ r['caption'] or 'this book' }}">
     <p class="reel-text">{{ r['plain'] }}</p>
-    <span class="reel-meta">{% if r['caption'] %}<b>{{ r['caption']|title_part }}</b>{% if r['caption']|author_part %} · {{ r['caption']|author_part }}{% endif %}{% else %}@{{ r['owner_username'] }}{% endif %}</span>
+    <span class="reel-meta">{% if r['caption'] %}<b>{{ r['caption']|title_part }}</b>{% if r['caption']|author_part %}, {{ r['caption']|author_part }}{% endif %}{% else %}@{{ r['owner_username'] }}{% endif %}</span>
     <span class="reel-cta">Tap to read →</span>
   </a>
   {% with bid=r['book_id'], liked=state[r['book_id']]['liked'], saved=state[r['book_id']]['saved'], like_count=state[r['book_id']]['like_count'], comment_count=state[r['book_id']]['comment_count'] %}
