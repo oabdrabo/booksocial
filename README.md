@@ -20,7 +20,7 @@ Swipe through book passages the way you scroll reels - and the moment one hooks 
 
 ## Overview
 
-Reading apps are libraries; social apps are feeds. booksocial puts them together - your bookshelf *is* your profile, and reading is something you do with people. Its hook is a **swipeable passage feed**: the same scroll mechanic that keeps you on Reels, aimed *at* reading instead of away from it - flick through excerpts, and tap the one that grabs you to keep reading. Drop in an EPUB; it's ingested into clean, sanitized HTML paragraphs (cover extracted, images localized) and posted to your feed for others to read, react to, and discuss.
+Reading apps are libraries; social apps are feeds. booksocial puts them together - your bookshelf _is_ your profile, and reading is something you do with people. Its hook is a **swipeable passage feed**: the same scroll mechanic that keeps you on Reels, aimed _at_ reading instead of away from it - flick through excerpts, and tap the one that grabs you to keep reading. Drop in an EPUB; it's ingested into clean, sanitized HTML paragraphs (cover extracted, images localized) and posted to your feed for others to read, react to, and discuss.
 
 ## Features
 
@@ -79,7 +79,7 @@ Go <b>private</b> for followers-only visibility, <b>block</b> anyone (enforced a
 </tr>
 </table>
 
-**Why you'll like it:** it's *yours* - a small, self-hosted app that keeps your library, highlights, notes, and conversations on your own server. **Private by default**, **free and open source**, with nothing tracked, sold, or advertised - and light enough to run on a spare box or a Raspberry Pi at home. *(For how it's built, see [Architecture](#architecture) and [Tech stack](#tech-stack).)*
+**Why you'll like it:** it's _yours_ - a small, self-hosted app that keeps your library, highlights, notes, and conversations on your own server. **Private by default**, **free and open source**, with nothing tracked, sold, or advertised - and light enough to run on a spare box or a Raspberry Pi at home. _(For how it's built, see [Architecture](#architecture) and [Tech stack](#tech-stack).)_
 
 ## Architecture
 
@@ -92,14 +92,14 @@ Data model centers on `users`, `books` (with `chapters` and `paragraphs`), and t
 
 ## Tech stack
 
-| Layer | Choice |
-|---|---|
-| Server | Flask |
-| Database | SQLite (WAL, foreign keys) |
-| EPUB | ebooklib + BeautifulSoup |
-| Sanitizing | bleach |
-| Images | Pillow |
-| Rich text | Markdown |
+| Layer      | Choice                     |
+| ---------- | -------------------------- |
+| Server     | Flask                      |
+| Database   | SQLite (WAL, foreign keys) |
+| EPUB       | ebooklib + BeautifulSoup   |
+| Sanitizing | bleach                     |
+| Images     | Pillow                     |
+| Rich text  | Markdown                   |
 
 ## Installation
 
@@ -119,12 +119,12 @@ Upload an EPUB to create a post, then browse the feed, open the reader, highligh
 
 ## Configuration
 
-| Var | Default | Purpose |
-|---|---|---|
-| `DB_PATH` | `./books.db` | SQLite database file |
-| `UPLOADS_DIR` | `./uploads` | Stored covers + extracted images |
-| `DEV_MODE` | `1` | Local auth shortcut - picks the user from `?as=` / cookie |
-| `Remote-User` / `Remote-Email` | - | Identity headers set by your reverse proxy in production |
+| Var                            | Default      | Purpose                                                   |
+| ------------------------------ | ------------ | --------------------------------------------------------- |
+| `DB_PATH`                      | `./books.db` | SQLite database file                                      |
+| `UPLOADS_DIR`                  | `./uploads`  | Stored covers + extracted images                          |
+| `DEV_MODE`                     | `1`          | Local auth shortcut - picks the user from `?as=` / cookie |
+| `Remote-User` / `Remote-Email` | -            | Identity headers set by your reverse proxy in production  |
 
 ## Development
 

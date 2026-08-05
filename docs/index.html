@@ -1,215 +1,529 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
-<meta name="theme-color" content="#17131b" />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://booksocial.pyxis3.ai/" />
-<link rel="canonical" href="https://booksocial.pyxis3.ai/" />
-<meta property="og:title" content="booksocial - Instagram, shaped for reading" />
-<meta property="og:description" content="Upload an EPUB and it becomes a post you read in the feed. Follow readers, highlight passages, start book clubs." />
-<meta name="twitter:card" content="summary" />
-<title>booksocial - Instagram, shaped for reading</title>
-<meta name="description" content="Upload an EPUB and it becomes a post you can read in the feed. Follow readers, highlight passages, start book clubs. A small, self-hosted Flask app." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<style>
-  :root{
-    --bg:#17131b; --panel:#221b28; --line:#352b3d; --text:#f3edf4; --muted:#a99bb0;
-    --rose:#e0566e; --rose2:#f0846f; --gold:#e8b04b;
-    --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;overflow-x:hidden}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
-  a{color:inherit}img{max-width:100%;display:block}
-  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
-  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);font-weight:600}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#17131b" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://booksocial.pyxis3.ai/" />
+    <link rel="canonical" href="https://booksocial.pyxis3.ai/" />
+    <meta property="og:title" content="booksocial - Instagram, shaped for reading" />
+    <meta property="og:description" content="Upload an EPUB and it becomes a post you read in the feed. Follow readers, highlight passages, start book clubs." />
+    <meta name="twitter:card" content="summary" />
+    <title>booksocial - Instagram, shaped for reading</title>
+    <meta name="description" content="Upload an EPUB and it becomes a post you can read in the feed. Follow readers, highlight passages, start book clubs. A small, self-hosted Flask app." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #17131b;
+        --panel: #221b28;
+        --line: #352b3d;
+        --text: #f3edf4;
+        --muted: #a99bb0;
+        --rose: #e0566e;
+        --rose2: #f0846f;
+        --gold: #e8b04b;
+        --serif: "Fraunces", Georgia, serif;
+        --sans: "Inter", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      .wrap {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--rose);
+        font-weight: 600;
+      }
 
-  header.hero{padding:78px 0 36px}
-  .hero::before{content:"";position:absolute;inset:0 0 auto 0;height:480px;z-index:-1;background:radial-gradient(60% 70% at 20% 10%,rgba(224,86,110,.16),transparent 70%),radial-gradient(50% 60% at 90% 0,rgba(232,176,75,.12),transparent 70%)}
-  .hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:46px;align-items:center}
-  .brand{font-family:var(--serif);font-style:italic;font-weight:600;font-size:26px;color:var(--rose);margin-bottom:20px}
-  h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,6vw,66px);line-height:1.03}
-  h1 em{font-style:italic;color:var(--rose)}
-  .lede{color:var(--muted);font-size:18px;margin:22px 0 30px;max-width:30em}
-  .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:13px 24px;font-weight:600;background:var(--rose);color:#fff;border:1px solid var(--rose);transition:transform .15s}
-  .btn:hover{transform:translateY(-1px);background:var(--rose2)}
-  .btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
-  .cta{display:flex;gap:14px;flex-wrap:wrap}
-  .shot{border-radius:18px;border:1px solid var(--line);box-shadow:0 36px 70px -34px rgba(0,0,0,.7)}
+      header.hero {
+        padding: 78px 0 36px;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 480px;
+        z-index: -1;
+        background: radial-gradient(60% 70% at 20% 10%, rgba(224, 86, 110, 0.16), transparent 70%), radial-gradient(50% 60% at 90% 0, rgba(232, 176, 75, 0.12), transparent 70%);
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+        gap: 46px;
+        align-items: center;
+      }
+      .brand {
+        font-family: var(--serif);
+        font-style: italic;
+        font-weight: 600;
+        font-size: 26px;
+        color: var(--rose);
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: clamp(40px, 6vw, 66px);
+        line-height: 1.03;
+      }
+      h1 em {
+        font-style: italic;
+        color: var(--rose);
+      }
+      .lede {
+        color: var(--muted);
+        font-size: 18px;
+        margin: 22px 0 30px;
+        max-width: 30em;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 13px 24px;
+        font-weight: 600;
+        background: var(--rose);
+        color: #fff;
+        border: 1px solid var(--rose);
+        transition: transform 0.15s;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        background: var(--rose2);
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--text);
+        border-color: var(--line);
+      }
+      .cta {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .shot {
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        box-shadow: 0 36px 70px -34px rgba(0, 0, 0, 0.7);
+      }
 
-  section{padding:64px 0}
-  h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,3.4vw,38px);margin-bottom:8px}
-  .sub{color:var(--muted);margin-bottom:36px;max-width:34em}
-  .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .feat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
-  .feat h3{font-family:var(--serif);font-weight:600;font-size:19px;margin-bottom:8px}
-  .feat p{color:var(--muted);font-size:14.5px}
-  @media(max-width:820px){.hero-grid,.feats{grid-template-columns:1fr}}
+      section {
+        padding: 64px 0;
+      }
+      h2 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: clamp(26px, 3.4vw, 38px);
+        margin-bottom: 8px;
+      }
+      .sub {
+        color: var(--muted);
+        margin-bottom: 36px;
+        max-width: 34em;
+      }
+      .feats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .feat {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 24px;
+      }
+      .feat h3 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: 19px;
+        margin-bottom: 8px;
+      }
+      .feat p {
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      @media (max-width: 820px) {
+        .hero-grid,
+        .feats {
+          grid-template-columns: 1fr;
+        }
+      }
 
-  .install pre{background:#0f0c12;border:1px solid var(--line);border-radius:12px;padding:18px 20px;font-family:ui-monospace,monospace;font-size:13.5px;overflow-x:auto;line-height:1.8;color:var(--text)}
-  .install .sigil{color:var(--rose2)}
-  .donate{display:inline-flex;gap:9px;align-items:center;background:linear-gradient(90deg,var(--rose),var(--gold));color:#1a0f12;border-radius:999px;padding:12px 22px;font-weight:700;margin-top:8px}
-  footer{padding:46px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
-  .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
-  .foot a:hover{color:var(--rose)}
+      .install pre {
+        background: #0f0c12;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px 20px;
+        font-family: ui-monospace, monospace;
+        font-size: 13.5px;
+        overflow-x: auto;
+        line-height: 1.8;
+        color: var(--text);
+      }
+      .install .sigil {
+        color: var(--rose2);
+      }
+      .donate {
+        display: inline-flex;
+        gap: 9px;
+        align-items: center;
+        background: linear-gradient(90deg, var(--rose), var(--gold));
+        color: #1a0f12;
+        border-radius: 999px;
+        padding: 12px 22px;
+        font-weight: 700;
+        margin-top: 8px;
+      }
+      footer {
+        padding: 46px 0;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+      .foot a:hover {
+        color: var(--rose);
+      }
 
-  .frow{display:flex;align-items:center;gap:56px;margin:0 0 18px}
-  .frow.rev{flex-direction:row-reverse}
-  .frow .ph{flex:0 0 248px;display:flex;justify-content:center}
-  .frow .ph img{width:240px;border-radius:24px;border:1px solid var(--line);box-shadow:0 34px 64px -30px rgba(0,0,0,.75)}
-  .frow .ftext{flex:1}
-  .frow .ftext .eyebrow{display:block;margin-bottom:8px}
-  .frow .ftext h3{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3vw,32px);margin-bottom:12px}
-  .frow .ftext p{color:var(--muted);font-size:16px;max-width:34em}
-  .frow .ftext b{color:var(--text);font-weight:600}
-  @media(max-width:820px){.frow,.frow.rev{flex-direction:column;gap:26px;margin-bottom:56px;text-align:center}.frow .ftext p{margin:0 auto}}
-</style>
-</head>
-<body>
-<header class="hero"><div class="wrap hero-grid">
-  <div>
-    <div class="brand">booksocial</div>
-    <span class="eyebrow">your books, your people, your server</span>
-    <h1>Doomscrolling, but you <em>finish books</em>.</h1>
-    <p class="lede">Swipe through book passages the way you scroll reels - and the moment one hooks you, tap and you're reading. Upload an EPUB and it becomes a post you read right in the feed; then follow readers, highlight passages, and start clubs.</p>
-    <div class="cta">
-      <a class="btn" href="https://app.booksocial.pyxis3.ai">Open booksocial →</a>
-      <a class="btn ghost" href="https://github.com/oabdrabo/booksocial">View on GitHub</a>
-    </div>
-  </div>
-  <div style="text-align:center"><img class="shot" style="width:300px;border-radius:24px" src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reels.webp" alt="Swipeable passage feed" /></div>
-</div></header>
+      .frow {
+        display: flex;
+        align-items: center;
+        gap: 56px;
+        margin: 0 0 18px;
+      }
+      .frow.rev {
+        flex-direction: row-reverse;
+      }
+      .frow .ph {
+        flex: 0 0 248px;
+        display: flex;
+        justify-content: center;
+      }
+      .frow .ph img {
+        width: 240px;
+        border-radius: 24px;
+        border: 1px solid var(--line);
+        box-shadow: 0 34px 64px -30px rgba(0, 0, 0, 0.75);
+      }
+      .frow .ftext {
+        flex: 1;
+      }
+      .frow .ftext .eyebrow {
+        display: block;
+        margin-bottom: 8px;
+      }
+      .frow .ftext h3 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: clamp(24px, 3vw, 32px);
+        margin-bottom: 12px;
+      }
+      .frow .ftext p {
+        color: var(--muted);
+        font-size: 16px;
+        max-width: 34em;
+      }
+      .frow .ftext b {
+        color: var(--text);
+        font-weight: 600;
+      }
+      @media (max-width: 820px) {
+        .frow,
+        .frow.rev {
+          flex-direction: column;
+          gap: 26px;
+          margin-bottom: 56px;
+          text-align: center;
+        }
+        .frow .ftext p {
+          margin: 0 auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="brand">booksocial</div>
+          <span class="eyebrow">your books, your people, your server</span>
+          <h1>Doomscrolling, but you <em>finish books</em>.</h1>
+          <p class="lede">
+            Swipe through book passages the way you scroll reels - and the moment one hooks you, tap and you're reading. Upload an EPUB and it becomes a post you read right in the feed; then follow
+            readers, highlight passages, and start clubs.
+          </p>
+          <div class="cta">
+            <a class="btn" href="https://app.booksocial.pyxis3.ai">Open booksocial →</a>
+            <a class="btn ghost" href="https://github.com/oabdrabo/booksocial">View on GitHub</a>
+          </div>
+        </div>
+        <div style="text-align: center">
+          <img class="shot" style="width: 300px; border-radius: 24px" src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reels.webp" alt="Swipeable passage feed" />
+        </div>
+      </div>
+    </header>
 
-<section><div class="wrap">
-  <span class="eyebrow">what it does</span>
-  <h2>Your bookshelf is your profile.</h2>
-  <p class="sub">EPUBs become readable posts, and reading becomes something you do with people. Every shot below is the real app - each next to what it does.</p>
+    <section>
+      <div class="wrap">
+        <span class="eyebrow">what it does</span>
+        <h2>Your bookshelf is your profile.</h2>
+        <p class="sub">EPUBs become readable posts, and reading becomes something you do with people. Every shot below is the real app - each next to what it does.</p>
 
-  <div class="frow">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reels.webp" alt="Swipeable passage feed" /></div>
-    <div class="ftext"><span class="eyebrow">the hook</span><h3>Swipe your way into a book</h3>
-      <p>The feed that pulls you <b>toward</b> reading instead of away from it. Flick through <b>full-screen passages</b>, one book at a time - a great opening line, a paragraph that lands. When one catches you, <b>tap and you're reading</b> the rest, right where the excerpt left off.</p></div>
-  </div>
+        <div class="frow">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reels.webp" alt="Swipeable passage feed" /></div>
+          <div class="ftext">
+            <span class="eyebrow">the hook</span>
+            <h3>Swipe your way into a book</h3>
+            <p>
+              The feed that pulls you <b>toward</b> reading instead of away from it. Flick through <b>full-screen passages</b>, one book at a time - a great opening line, a paragraph that lands. When
+              one catches you, <b>tap and you're reading</b> the rest, right where the excerpt left off.
+            </p>
+          </div>
+        </div>
 
-  <div class="frow rev">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/feed.webp" alt="Feed" /></div>
-    <div class="ftext"><span class="eyebrow">the feed</span><h3>What your circle is reading</h3>
-      <p>Books from people you follow, newest first - with <b>likes</b>, <b>saves</b>, threaded <b>comments</b>, and <b>reposts</b> with quotes. A <b>continue-reading</b> shelf picks every book back up where you left off, and a separate <b>Explore</b> tab surfaces everything public.</p></div>
-  </div>
+        <div class="frow rev">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/feed.webp" alt="Feed" /></div>
+          <div class="ftext">
+            <span class="eyebrow">the feed</span>
+            <h3>What your circle is reading</h3>
+            <p>
+              Books from people you follow, newest first - with <b>likes</b>, <b>saves</b>, threaded <b>comments</b>, and <b>reposts</b> with quotes. A <b>continue-reading</b> shelf picks every book
+              back up where you left off, and a separate <b>Explore</b> tab surfaces everything public.
+            </p>
+          </div>
+        </div>
 
-  <div class="frow">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reader.webp" alt="Reader" /></div>
-    <div class="ftext"><span class="eyebrow">the reader</span><h3>Read right in the app</h3>
-      <p>A calm, distraction-free reading view with a chapter <b>table of contents</b> and your place <b>saved automatically</b> - so you always pick up where you stopped. <b>Highlight</b> the lines that land and keep <b>private notes</b> as you go.</p></div>
-  </div>
+        <div class="frow">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/reader.webp" alt="Reader" /></div>
+          <div class="ftext">
+            <span class="eyebrow">the reader</span>
+            <h3>Read right in the app</h3>
+            <p>
+              A calm, distraction-free reading view with a chapter <b>table of contents</b> and your place <b>saved automatically</b> - so you always pick up where you stopped. <b>Highlight</b> the
+              lines that land and keep <b>private notes</b> as you go.
+            </p>
+          </div>
+        </div>
 
-  <div class="frow rev">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/profile.webp" alt="Profile" /></div>
-    <div class="ftext"><span class="eyebrow">profiles</span><h3>A shelf that is your profile</h3>
-      <p>Every profile is a <b>bookshelf</b> with the numbers that matter - followers, books shared, how much you've read, and a <b>reading streak</b> to keep you honest. Books without art get a handsome cover made from their title.</p></div>
-  </div>
+        <div class="frow rev">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/profile.webp" alt="Profile" /></div>
+          <div class="ftext">
+            <span class="eyebrow">profiles</span>
+            <h3>A shelf that is your profile</h3>
+            <p>
+              Every profile is a <b>bookshelf</b> with the numbers that matter - followers, books shared, how much you've read, and a <b>reading streak</b> to keep you honest. Books without art get a
+              handsome cover made from their title.
+            </p>
+          </div>
+        </div>
 
-  <div class="frow">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search-results.webp" alt="Full-text search" /></div>
-    <div class="ftext"><span class="eyebrow">search</span><h3>Search inside the books</h3>
-      <p>Find the line you half-remember. Search looks <b>inside the books themselves</b>, not just titles, and jumps you straight to the passage with your words highlighted.</p></div>
-  </div>
+        <div class="frow">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search-results.webp" alt="Full-text search" /></div>
+          <div class="ftext">
+            <span class="eyebrow">search</span>
+            <h3>Search inside the books</h3>
+            <p>Find the line you half-remember. Search looks <b>inside the books themselves</b>, not just titles, and jumps you straight to the passage with your words highlighted.</p>
+          </div>
+        </div>
 
-  <div class="frow rev">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search.webp" alt="Discover" /></div>
-    <div class="ftext"><span class="eyebrow">discover</span><h3>Find your next read</h3>
-      <p>An empty search box becomes discovery: <b>popular</b> books, <b>people</b> to follow, and a <b>#tag</b> cloud. Hashtags written in captions are indexed automatically and get their own tag pages.</p></div>
-  </div>
+        <div class="frow rev">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/search.webp" alt="Discover" /></div>
+          <div class="ftext">
+            <span class="eyebrow">discover</span>
+            <h3>Find your next read</h3>
+            <p>
+              An empty search box becomes discovery: <b>popular</b> books, <b>people</b> to follow, and a <b>#tag</b> cloud. Hashtags written in captions are indexed automatically and get their own
+              tag pages.
+            </p>
+          </div>
+        </div>
 
-  <div class="frow">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/club.webp" alt="Book club" /></div>
-    <div class="ftext"><span class="eyebrow">book clubs</span><h3>Read together</h3>
-      <p>Spin up a <b>book club</b> around any book and chat with members in a shared space - create, join, or leave. Clubs are scoped to who can see the book.</p></div>
-  </div>
+        <div class="frow">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/club.webp" alt="Book club" /></div>
+          <div class="ftext">
+            <span class="eyebrow">book clubs</span>
+            <h3>Read together</h3>
+            <p>Spin up a <b>book club</b> around any book and chat with members in a shared space - create, join, or leave. Clubs are scoped to who can see the book.</p>
+          </div>
+        </div>
 
-  <div class="frow rev">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/dm.webp" alt="Direct messages" /></div>
-    <div class="ftext"><span class="eyebrow">messages</span><h3>Direct messages</h3>
-      <p>Slide into a private conversation about a book - with <b>read receipts</b> and unread badges. And when you block someone, the messages really do stop.</p></div>
-  </div>
+        <div class="frow rev">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/dm.webp" alt="Direct messages" /></div>
+          <div class="ftext">
+            <span class="eyebrow">messages</span>
+            <h3>Direct messages</h3>
+            <p>Slide into a private conversation about a book - with <b>read receipts</b> and unread badges. And when you block someone, the messages really do stop.</p>
+          </div>
+        </div>
 
-  <div class="frow">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/notifications.webp" alt="Notifications" /></div>
-    <div class="ftext"><span class="eyebrow">notifications</span><h3>An activity inbox</h3>
-      <p>Everything that happens to you in one place - <b>likes</b>, <b>comments</b>, <b>replies</b>, and <b>@mentions</b> - with unread indicators in the top bar.</p></div>
-  </div>
+        <div class="frow">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/notifications.webp" alt="Notifications" /></div>
+          <div class="ftext">
+            <span class="eyebrow">notifications</span>
+            <h3>An activity inbox</h3>
+            <p>Everything that happens to you in one place - <b>likes</b>, <b>comments</b>, <b>replies</b>, and <b>@mentions</b> - with unread indicators in the top bar.</p>
+          </div>
+        </div>
 
-  <div class="frow rev">
-    <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/settings.webp" alt="Settings" /></div>
-    <div class="ftext"><span class="eyebrow">privacy &amp; control</span><h3>Yours to lock down</h3>
-      <p>Go <b>private</b> for followers-only visibility, <b>block</b> anyone (enforced across feeds, search, DMs and clubs), and edit your <b>display name, bio and avatar</b>.</p></div>
-  </div>
-</div></section>
+        <div class="frow rev">
+          <div class="ph"><img src="https://raw.githubusercontent.com/oabdrabo/booksocial/main/assets/screens/settings.webp" alt="Settings" /></div>
+          <div class="ftext">
+            <span class="eyebrow">privacy &amp; control</span>
+            <h3>Yours to lock down</h3>
+            <p>Go <b>private</b> for followers-only visibility, <b>block</b> anyone (enforced across feeds, search, DMs and clubs), and edit your <b>display name, bio and avatar</b>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<section><div class="wrap">
-  <span class="eyebrow">why booksocial</span>
-  <h2>Made for readers, not advertisers.</h2>
-  <p class="sub">A reading club you actually own - no feeds gaming your attention, no one selling your taste.</p>
-  <div class="feats">
-    <div class="feat"><h3>Own your library</h3><p>Your books, highlights, and notes live on your own server - not in someone else's cloud. No lock-in, ever.</p></div>
-    <div class="feat"><h3>Reading, together</h3><p>Turn a solitary habit into something you share - follow friends, start a club, talk in the margins.</p></div>
-    <div class="feat"><h3>Private by default</h3><p>Go followers-only, block whoever you like. Nothing is tracked, sold, or advertised.</p></div>
-    <div class="feat"><h3>Free, forever</h3><p>Open source and free. No subscriptions, no ads, no upsells - just the app.</p></div>
-    <div class="feat"><h3>Runs on almost nothing</h3><p>A tiny self-hosted app that's happy on a spare box or a Raspberry Pi at home.</p></div>
-    <div class="feat"><h3>Make it yours</h3><p>The whole thing is open - change anything, host it your way, keep what you build.</p></div>
-  </div>
-</div></section>
+    <section>
+      <div class="wrap">
+        <span class="eyebrow">why booksocial</span>
+        <h2>Made for readers, not advertisers.</h2>
+        <p class="sub">A reading club you actually own - no feeds gaming your attention, no one selling your taste.</p>
+        <div class="feats">
+          <div class="feat">
+            <h3>Own your library</h3>
+            <p>Your books, highlights, and notes live on your own server - not in someone else's cloud. No lock-in, ever.</p>
+          </div>
+          <div class="feat">
+            <h3>Reading, together</h3>
+            <p>Turn a solitary habit into something you share - follow friends, start a club, talk in the margins.</p>
+          </div>
+          <div class="feat">
+            <h3>Private by default</h3>
+            <p>Go followers-only, block whoever you like. Nothing is tracked, sold, or advertised.</p>
+          </div>
+          <div class="feat">
+            <h3>Free, forever</h3>
+            <p>Open source and free. No subscriptions, no ads, no upsells - just the app.</p>
+          </div>
+          <div class="feat">
+            <h3>Runs on almost nothing</h3>
+            <p>A tiny self-hosted app that's happy on a spare box or a Raspberry Pi at home.</p>
+          </div>
+          <div class="feat">
+            <h3>Make it yours</h3>
+            <p>The whole thing is open - change anything, host it your way, keep what you build.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<section class="install" id="start"><div class="wrap">
-  <span class="eyebrow">get started</span>
-  <h2>Start reading in seconds.</h2>
-  <p class="sub">Open booksocial, sign in, and turn your first EPUB into a post you read in the feed.</p>
-  <div class="cta">
-    <a class="btn" href="https://app.booksocial.pyxis3.ai">Open booksocial →</a>
-    <a class="btn ghost" href="https://app.booksocial.pyxis3.ai">Create an account</a>
-  </div>
-  <p style="margin-top:24px;color:var(--muted);font-size:14px">
-    Prefer to run your own? booksocial is open source and self-hostable -
-    <a href="https://github.com/oabdrabo/booksocial" style="color:var(--rose)">see the code</a>.
-  </p>
-  <p style="margin-top:16px"><a class="donate" href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">☕ Support development</a></p>
-</div></section>
+    <section class="install" id="start">
+      <div class="wrap">
+        <span class="eyebrow">get started</span>
+        <h2>Start reading in seconds.</h2>
+        <p class="sub">Open booksocial, sign in, and turn your first EPUB into a post you read in the feed.</p>
+        <div class="cta">
+          <a class="btn" href="https://app.booksocial.pyxis3.ai">Open booksocial →</a>
+          <a class="btn ghost" href="https://app.booksocial.pyxis3.ai">Create an account</a>
+        </div>
+        <p style="margin-top: 24px; color: var(--muted); font-size: 14px">
+          Prefer to run your own? booksocial is open source and self-hostable -
+          <a href="https://github.com/oabdrabo/booksocial" style="color: var(--rose)">see the code</a>.
+        </p>
+        <p style="margin-top: 16px"><a class="donate" href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">☕ Support development</a></p>
+      </div>
+    </section>
 
-<footer><div class="wrap foot">
-  <span>booksocial - social reading, MIT</span>
-  <nav><a href="https://app.booksocial.pyxis3.ai">Open app</a> &nbsp; <a href="https://github.com/oabdrabo/booksocial">GitHub</a> &nbsp; <a href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">Donate</a></nav>
-</div></footer>
+    <footer>
+      <div class="wrap foot">
+        <span>booksocial - social reading, MIT</span>
+        <nav>
+          <a href="https://app.booksocial.pyxis3.ai">Open app</a> &nbsp; <a href="https://github.com/oabdrabo/booksocial">GitHub</a> &nbsp;
+          <a href="https://donate.stripe.com/3cI6oI7Gh1PG0eV8MJ5kk00">Donate</a>
+        </nav>
+      </div>
+    </footer>
 
-<script>
-(function () {
-  var H = location.hostname;
-  if (!/\.pyxis3\.ai$/.test(H)) return;
-  var q = new URLSearchParams(location.search);
-  var cid = q.get('cid') || '';
-  var utm = new URLSearchParams();
-  q.forEach(function (v, k) { if (/^utm_/.test(k)) utm.set(k, v); });
-  var J = function (b) { return new Blob([JSON.stringify(b)], { type: 'application/json' }); };
-  function ev(name, value) { try { navigator.sendBeacon('/api/event', J({ host: H, name: name, value: value || 0, cid: cid })); } catch (e) {} }
-  function conv(label, value) { new Image().src = '/api/conv?host=' + encodeURIComponent(H) + '&label=' + encodeURIComponent(label) + '&value=' + (value || 0) + '&cid=' + cid; }
-  window.bsTrack = ev;
-  ev('visit');
-  if (utm.toString()) document.querySelectorAll('a[href*="app.booksocial.pyxis3.ai"]').forEach(function (a) {
-    try { var u = new URL(a.href); utm.forEach(function (v, k) { if (!u.searchParams.has(k)) u.searchParams.set(k, v); }); a.href = u.toString(); } catch (e) {}
-  });
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a'); if (!a) return;
-    var h = a.getAttribute('href') || '';
-    if (/app\.booksocial\.pyxis3\.ai/i.test(h))            { ev('open_app'); conv('open_app'); }
-    else if (/stripe\.com|donate/i.test(h))                { ev('donate');   conv('donate'); }
-    else if (/github\.com\/oabdrabo\/booksocial/i.test(h)) ev('github');
-  }, true);
-})();
-</script>
-</body>
+    <script>
+      (function () {
+        var H = location.hostname;
+        if (!/\.pyxis3\.ai$/.test(H)) return;
+        var q = new URLSearchParams(location.search);
+        var cid = q.get("cid") || "";
+        var utm = new URLSearchParams();
+        q.forEach(function (v, k) {
+          if (/^utm_/.test(k)) utm.set(k, v);
+        });
+        var J = function (b) {
+          return new Blob([JSON.stringify(b)], { type: "application/json" });
+        };
+        function ev(name, value) {
+          try {
+            navigator.sendBeacon("/api/event", J({ host: H, name: name, value: value || 0, cid: cid }));
+          } catch (e) {}
+        }
+        function conv(label, value) {
+          new Image().src = "/api/conv?host=" + encodeURIComponent(H) + "&label=" + encodeURIComponent(label) + "&value=" + (value || 0) + "&cid=" + cid;
+        }
+        window.bsTrack = ev;
+        ev("visit");
+        if (utm.toString())
+          document.querySelectorAll('a[href*="app.booksocial.pyxis3.ai"]').forEach(function (a) {
+            try {
+              var u = new URL(a.href);
+              utm.forEach(function (v, k) {
+                if (!u.searchParams.has(k)) u.searchParams.set(k, v);
+              });
+              a.href = u.toString();
+            } catch (e) {}
+          });
+        document.addEventListener(
+          "click",
+          function (e) {
+            var a = e.target.closest && e.target.closest("a");
+            if (!a) return;
+            var h = a.getAttribute("href") || "";
+            if (/app\.booksocial\.pyxis3\.ai/i.test(h)) {
+              ev("open_app");
+              conv("open_app");
+            } else if (/stripe\.com|donate/i.test(h)) {
+              ev("donate");
+              conv("donate");
+            } else if (/github\.com\/oabdrabo\/booksocial/i.test(h)) ev("github");
+          },
+          true,
+        );
+      })();
+    </script>
+  </body>
 </html>
