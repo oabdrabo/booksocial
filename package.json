@@ -1,0 +1,12 @@
+{
+  "name": "booksocial",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "prettier --check .",
+    "prepare": "git config core.hooksPath .githooks || true"
+  },
+  "devDependencies": {
+    "prettier": "latest"
+  }
+}

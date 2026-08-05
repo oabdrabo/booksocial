@@ -2,3 +2,4 @@ node_modules
 dist
 *.min.*
 *.json
+templates/settings.html
