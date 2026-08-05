@@ -143,7 +143,7 @@ Yes - all HTML passes through a single `bleach` allow-list before it's stored or
 
 ## Contributing
 
-Contributions are welcome - please read the [AI Contribution Policy](https://github.com/oabdrabo/.github/blob/main/AI_POLICY.md) first. Keep pull requests focused on a single concern, follow the existing conventions, and tests are very welcome.
+Contributions are welcome - please read the [AI Contribution Policy](https://github.com/pyxis3-ai/.github/blob/main/AI_POLICY.md) first. Keep pull requests focused on a single concern, follow the existing conventions, and tests are very welcome.
 
 ## License
 
